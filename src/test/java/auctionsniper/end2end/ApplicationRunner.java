@@ -12,7 +12,11 @@ public class ApplicationRunner {
         Thread thread = new Thread("Test Application") {
             @Override
             public void run() {
-                Main.main(FakeAuctionServer.XMPP_HOST_NAME, SNIPER_ID, SNIPER_PASSWORD, auction.getItemId());
+                try {
+                    Main.main(FakeAuctionServer.XMPP_HOST_NAME, SNIPER_ID, SNIPER_PASSWORD, auction.getItemId());
+                } catch (Exception e) {
+                    e.printStackTrace();
+                }
             }
         };
         thread.setDaemon(true);
