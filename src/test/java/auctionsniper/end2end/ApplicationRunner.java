@@ -13,7 +13,13 @@ public class ApplicationRunner {
             @Override
             public void run() {
                 try {
-                    Main.main(FakeAuctionServer.XMPP_HOST_NAME, SNIPER_ID, SNIPER_PASSWORD, auction.getItemId());
+                    Main.main(
+                            FakeAuctionServer.XMPP_HOST_NAME,
+                            String.valueOf(FakeAuctionServer.XMPP_PORT),
+                            FakeAuctionServer.XMPP_DOMAIN_NAME,
+                            SNIPER_ID,
+                            SNIPER_PASSWORD,
+                            auction.getItemId());
                 } catch (Exception e) {
                     e.printStackTrace();
                 }
@@ -26,7 +32,7 @@ public class ApplicationRunner {
     }
 
     public void showsSniperHasLostAuction() {
-        driver.showsSniperStatus(MainWindow.SNIPER_STATUS_NAME);
+        driver.showsSniperStatus(MainWindow.STATUS_LOST);
     }
 
     public void stop() {
