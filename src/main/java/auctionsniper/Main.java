@@ -7,6 +7,7 @@ import org.jivesoftware.smack.SmackException;
 import org.jivesoftware.smack.XMPPException;
 import org.jivesoftware.smack.chat2.Chat;
 import org.jivesoftware.smack.chat2.ChatManager;
+import org.jivesoftware.smack.packet.Message;
 import org.jivesoftware.smack.tcp.XMPPTCPConnection;
 import org.jivesoftware.smack.tcp.XMPPTCPConnectionConfiguration;
 import org.jxmpp.jid.EntityBareJid;
@@ -29,6 +30,8 @@ public class Main {
     public static final String AUCTION_ID_FORMAT = ITEM_ID_AS_LOGIN + "@%s/" + AUCTION_RESOURCE;
 
     private volatile MainWindow ui;
+    @SuppressWarnings("unused")
+    private Chat notToBeGCd;
 
     public Main() throws Exception {
         startUserInterface();
@@ -42,11 +45,7 @@ public class Main {
                 args[ARG_XMPP_DOMAIN_NAME],
                 args[ARG_USERNAME],
                 args[ARG_PASSWORD]);
-
-        ChatManager manager = ChatManager.getInstanceFor(connection);
-        EntityBareJid auctionJid = auctionJid(args[ARG_ITEM_ID], args[ARG_XMPP_DOMAIN_NAME]);
-        Chat chat = manager.chatWith(auctionJid);
-        chat.send("");
+        main.joinAuction(connection, auctionJid(args[ARG_ITEM_ID], args[ARG_XMPP_DOMAIN_NAME]));
     }
 
     private void startUserInterface() throws Exception {
@@ -72,5 +71,16 @@ public class Main {
 
     private static EntityBareJid auctionJid(String itemId, String xmppDomainName) throws XmppStringprepException {
         return JidCreate.entityBareFrom(String.format(AUCTION_ID_FORMAT, itemId, xmppDomainName));
+    }
+
+    private void joinAuction(AbstractXMPPConnection connection, EntityBareJid auctionJid) throws SmackException.NotConnectedException, InterruptedException {
+        ChatManager manager = ChatManager.getInstanceFor(connection);
+        Chat chat = manager.chatWith(auctionJid);
+        notToBeGCd = chat;
+
+        manager.addIncomingListener((EntityBareJid _entityBareJid, Message _message, Chat _chat) -> {
+            SwingUtilities.invokeLater(() -> ui.showStatus(MainWindow.STATUS_LOST));
+        });
+        chat.send("");
     }
 }

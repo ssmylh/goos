@@ -27,4 +27,8 @@ public class MainWindow extends JFrame {
         label.setBorder(new LineBorder(Color.black));
         return label;
     }
+
+    public void showStatus(String status) {
+        sniperStatus.setText(status);
+    }
 }
