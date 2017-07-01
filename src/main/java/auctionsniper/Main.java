@@ -15,6 +15,8 @@ import org.jxmpp.jid.impl.JidCreate;
 import org.jxmpp.stringprep.XmppStringprepException;
 
 import javax.swing.*;
+import java.awt.event.WindowAdapter;
+import java.awt.event.WindowEvent;
 import java.io.IOException;
 import java.net.InetAddress;
 
@@ -28,6 +30,8 @@ public class Main {
     public static final String AUCTION_RESOURCE = "Auction";
     public static final String ITEM_ID_AS_LOGIN = "auction-%s";
     public static final String AUCTION_ID_FORMAT = ITEM_ID_AS_LOGIN + "@%s/" + AUCTION_RESOURCE;
+    public static final String JOIN_COMMAND_FORMAT = "SOLVersion: 1.1; Command: JOIN;";
+    public static final String BID_COMMAND_FORMAT = "SOLVersion: 1.1; Command: BID; Price: %d;";
 
     private volatile MainWindow ui;
     @SuppressWarnings("unused")
@@ -74,6 +78,8 @@ public class Main {
     }
 
     private void joinAuction(AbstractXMPPConnection connection, EntityBareJid auctionJid) throws SmackException.NotConnectedException, InterruptedException {
+        disconnectWhenUICloses(connection);
+
         ChatManager manager = ChatManager.getInstanceFor(connection);
         Chat chat = manager.chatWith(auctionJid);
         notToBeGCd = chat;
@@ -81,6 +87,15 @@ public class Main {
         manager.addIncomingListener((EntityBareJid _entityBareJid, Message _message, Chat _chat) -> {
             SwingUtilities.invokeLater(() -> ui.showStatus(MainWindow.STATUS_LOST));
         });
-        chat.send("");
+        chat.send(JOIN_COMMAND_FORMAT);
+    }
+
+    private void disconnectWhenUICloses(AbstractXMPPConnection connection) {
+        ui.addWindowListener(new WindowAdapter() {
+            @Override
+            public void windowClosed(WindowEvent e) {
+                connection.disconnect();
+            }
+        });
     }
 }

@@ -1,5 +1,7 @@
 package auctionsniper.end2end;
 
+import auctionsniper.Main;
+import org.hamcrest.Matcher;
 import org.jivesoftware.smack.AbstractXMPPConnection;
 import org.jivesoftware.smack.ConnectionConfiguration;
 import org.jivesoftware.smack.SmackException;
@@ -67,9 +69,9 @@ public class FakeAuctionServer {
     }
 
     public void announceClosed() {
-        incomingListener.getChat().ifPresent((chat) -> {
+        incomingListener.getChatParner().ifPresent((partner) -> {
             try {
-                chat.send("");
+                partner.chat.send("");
             } catch (SmackException.NotConnectedException ignored) {
             } catch (InterruptedException e) {
                 throw new RuntimeException(e);
@@ -77,34 +79,63 @@ public class FakeAuctionServer {
         });
     }
 
-    public void hasReceivedJoinRequestFromSniper() throws InterruptedException {
-        incomingListener.receiveMessage();
+    public void hasReceivedJoinRequestFromSniper(String sniperId) throws InterruptedException {
+        receivesAMessageMatching(sniperId, is(Main.JOIN_COMMAND_FORMAT));
+    }
+
+    public void hasReceivedBid(int bid, String sniperId) throws InterruptedException {
+        receivesAMessageMatching(sniperId, is(String.format(Main.BID_COMMAND_FORMAT, bid)));
+    }
+
+    private void receivesAMessageMatching(String sniperId, Matcher<? super String> messageMatcher) throws InterruptedException {
+        incomingListener.receiveAMessage(messageMatcher);
+
+        ChatPartner partner = incomingListener.getChatParner().get();
+
+        // `IncomingChatMessageListener`では`EntityFullJid`を引数に取らない(`EntityBareJid`を取る)ので、`Resource Name`を付加して比較する。
+        assertThat(partner.jid.asEntityBareJidString() + "/" + Main.AUCTION_RESOURCE, is(sniperId));
     }
 
     public String getItemId() {
         return itemId;
     }
 
+    public void reportPrice(int price, int increment, String bidder) {
+        incomingListener.getChatParner().ifPresent((partner) -> {
+            try {
+                String message = String.format(
+                        "SOLVersion: 1.1; Event: PRICE; CurrentPrice: %d; Increment: %d; Bidder: %s;",
+                        price, increment, bidder);
+                partner.chat.send(message);
+            } catch (SmackException.NotConnectedException ignored) {
+            } catch (InterruptedException e) {
+                throw new RuntimeException(e);
+            }
+        });
+    }
+
     class SingleIncomingListener implements IncomingChatMessageListener {
 
         private ArrayBlockingQueue<Message> messages = new ArrayBlockingQueue<>(1);
-        private List<Chat> chats = new ArrayList<>();
+        private List<ChatPartner> chatPartners = new ArrayList<>();
 
-        public void receiveMessage() throws InterruptedException {
-            assertThat(messages.poll(5, TimeUnit.SECONDS), is(notNullValue()));
+        public void receiveAMessage(Matcher<? super String> messageMatcher) throws InterruptedException {
+            Message message = messages.poll(5, TimeUnit.SECONDS);
+            assertThat("Message", message, is(notNullValue()));
+            assertThat(message.getBody(), messageMatcher);
         }
 
         @Override
         public void newIncomingMessage(EntityBareJid entityBareJid, Message message, Chat chat) {
             messages.add(message);
-            synchronized (chats) {
-                chats.add(chat);
+            synchronized (chatPartners) {
+                chatPartners.add(new ChatPartner(entityBareJid, chat));
             }
         }
 
-        public Optional<Chat> getChat() {
-            synchronized (chats) {
-                return chats.stream().findFirst();
+        public Optional<ChatPartner> getChatParner() {
+            synchronized (chatPartners) {
+                return chatPartners.stream().findFirst();
             }
         }
     }
