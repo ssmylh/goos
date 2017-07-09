@@ -127,10 +127,11 @@ public class FakeAuctionServer {
 
         @Override
         public void newIncomingMessage(EntityBareJid entityBareJid, Message message, Chat chat) {
-            messages.add(message);
             synchronized (chatPartners) {
                 chatPartners.add(new ChatPartner(entityBareJid, chat));
             }
+            messages.add(message);
+
         }
 
         public Optional<ChatPartner> getChatParner() {
