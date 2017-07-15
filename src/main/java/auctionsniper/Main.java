@@ -7,7 +7,6 @@ import org.jivesoftware.smack.SmackException;
 import org.jivesoftware.smack.XMPPException;
 import org.jivesoftware.smack.chat2.Chat;
 import org.jivesoftware.smack.chat2.ChatManager;
-import org.jivesoftware.smack.packet.Message;
 import org.jivesoftware.smack.tcp.XMPPTCPConnection;
 import org.jivesoftware.smack.tcp.XMPPTCPConnectionConfiguration;
 import org.jxmpp.jid.EntityBareJid;
@@ -20,7 +19,7 @@ import java.awt.event.WindowEvent;
 import java.io.IOException;
 import java.net.InetAddress;
 
-public class Main {
+public class Main implements AuctionEventListener {
     private static final int ARG_HOST_NAME = 0;
     private static final int ARG_PORT = 1;
     private static final int ARG_XMPP_DOMAIN_NAME = 2;
@@ -84,12 +83,14 @@ public class Main {
         Chat chat = manager.chatWith(auctionJid);
         notToBeGCd = chat;
 
-        manager.addIncomingListener((EntityBareJid _entityBareJid, Message _message, Chat _chat) -> {
-            SwingUtilities.invokeLater(() -> ui.showStatus(MainWindow.STATUS_LOST));
-        });
+        manager.addIncomingListener(new AuctionMessageTranslator(this));
         chat.send(JOIN_COMMAND_FORMAT);
     }
 
+    @Override
+    public void auctionClosed() {
+        SwingUtilities.invokeLater(() -> ui.showStatus(MainWindow.STATUS_LOST));
+    }
     private void disconnectWhenUICloses(AbstractXMPPConnection connection) {
         ui.addWindowListener(new WindowAdapter() {
             @Override
