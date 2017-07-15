@@ -71,7 +71,7 @@ public class FakeAuctionServer {
     public void announceClosed() {
         incomingListener.getChatParner().ifPresent((partner) -> {
             try {
-                partner.chat.send("");
+                partner.chat.send("SOLVersion: 1.1; Event: CLOSE");
             } catch (SmackException.NotConnectedException ignored) {
             } catch (InterruptedException e) {
                 throw new RuntimeException(e);

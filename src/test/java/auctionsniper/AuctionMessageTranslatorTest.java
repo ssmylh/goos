@@ -30,4 +30,22 @@ public class AuctionMessageTranslatorTest {
 
         translator.newIncomingMessage(UNUSED_JID, message, UNUSED_CHAT);
     }
+
+    @Test
+    public void notifiesBidDetailsWhenCurrentPriceMessageReceived() {
+        int price = 192;
+        int increment = 7;
+        context.checking(new Expectations(){
+            {
+                oneOf(listener).currentPrice(price, increment);
+            }
+        });
+
+        Message message = new Message();
+        message.setBody(String.format(
+                "SOLVersion: 1.1; Event: PRICE; CurrentPrice: %d; Increment: %d; Bidder: Someoene else;",
+                price, increment));
+
+        translator.newIncomingMessage(UNUSED_JID, message, UNUSED_CHAT);
+    }
 }
