@@ -83,7 +83,16 @@ public class Main implements SniperListener {
         Chat chat = manager.chatWith(auctionJid);
         notToBeGCd = chat;
 
-        manager.addIncomingListener(new AuctionMessageTranslator(new AuctionSniper(this)));
+        Auction auction= amount -> {
+            try {
+                chat.send(String.format(BID_COMMAND_FORMAT, amount));
+            } catch (SmackException.NotConnectedException e) {
+                e.printStackTrace();// TODO
+            } catch (InterruptedException e) {
+                e.printStackTrace();
+            }
+        };
+        manager.addIncomingListener(new AuctionMessageTranslator(new AuctionSniper(auction, this)));
         chat.send(JOIN_COMMAND_FORMAT);
     }
 
@@ -99,5 +108,10 @@ public class Main implements SniperListener {
     @Override
     public void sniperLost() {
         SwingUtilities.invokeLater(() -> ui.showStatus(MainWindow.STATUS_LOST));
+    }
+
+    @Override
+    public void sniperBidding() {
+        SwingUtilities.invokeLater(() -> ui.showStatus(MainWindow.STATUS_BIDDING));
     }
 }
