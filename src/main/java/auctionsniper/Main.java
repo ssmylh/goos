@@ -19,7 +19,7 @@ import java.awt.event.WindowEvent;
 import java.io.IOException;
 import java.net.InetAddress;
 
-public class Main implements AuctionEventListener {
+public class Main implements SniperListener {
     private static final int ARG_HOST_NAME = 0;
     private static final int ARG_PORT = 1;
     private static final int ARG_XMPP_DOMAIN_NAME = 2;
@@ -83,18 +83,8 @@ public class Main implements AuctionEventListener {
         Chat chat = manager.chatWith(auctionJid);
         notToBeGCd = chat;
 
-        manager.addIncomingListener(new AuctionMessageTranslator(this));
+        manager.addIncomingListener(new AuctionMessageTranslator(new AuctionSniper(this)));
         chat.send(JOIN_COMMAND_FORMAT);
-    }
-
-    @Override
-    public void auctionClosed() {
-        SwingUtilities.invokeLater(() -> ui.showStatus(MainWindow.STATUS_LOST));
-    }
-
-    @Override
-    public void currentPrice(int price, int increment) {
-        // TODO
     }
 
     private void disconnectWhenUICloses(AbstractXMPPConnection connection) {
@@ -106,4 +96,8 @@ public class Main implements AuctionEventListener {
         });
     }
 
+    @Override
+    public void sniperLost() {
+        SwingUtilities.invokeLater(() -> ui.showStatus(MainWindow.STATUS_LOST));
+    }
 }
