@@ -13,7 +13,7 @@ public class End2EndTest {
             runner.startBiddingIn(auction);
             auction.hasReceivedJoinRequestFromSniper(ApplicationRunner.SNIPER_XMPP_ID);
             auction.announceClosed();
-            runner.showsSniperHasLostAuction();
+            runner.hasShownSniperHasLostAuction();
         } finally {
             auction.stop();
             runner.stop();
@@ -32,11 +32,11 @@ public class End2EndTest {
 
             auction.reportPrice(1000, 98, "other bidder");
 
-            runner.showsSniperIsBidding();
+            runner.hasShownSniperIsBidding();
             auction.hasReceivedBid(1098, ApplicationRunner.SNIPER_XMPP_ID);
 
             auction.announceClosed();
-            runner.showsSniperHasLostAuction();
+            runner.hasShownSniperHasLostAuction();
         } finally {
             auction.stop();
             runner.stop();
