@@ -84,7 +84,8 @@ public class Main {
         notToBeGCd = chat;
 
         Auction auction = new XMPPAuction(chat);
-        manager.addIncomingListener(new AuctionMessageTranslator(new AuctionSniper(auction, new SniperStateDisplayer())));
+        // `AbstractXMPPConnection.connection` は `EntityFullJid` を返す。
+        manager.addIncomingListener(new AuctionMessageTranslator(connection.getUser().toString(), new AuctionSniper(auction, new SniperStateDisplayer())));
         auction.join();
     }
 

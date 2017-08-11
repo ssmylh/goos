@@ -5,6 +5,8 @@ import org.jmock.integration.junit4.JUnitRuleMockery;
 import org.junit.Rule;
 import org.junit.Test;
 
+import static auctionsniper.AuctionEventListener.PriceSource.*;
+
 public class AuctionSniperTest {
     @Rule
     public JUnitRuleMockery context = new JUnitRuleMockery();
@@ -35,6 +37,6 @@ public class AuctionSniperTest {
             }
         });
 
-        sniper.currentPrice(price, increment);
+        sniper.currentPrice(price, increment, FromOtherBidder);// `PriceSource` はどちらでも OK.
     }
 }

@@ -8,10 +8,15 @@ import org.jxmpp.jid.EntityBareJid;
 import java.util.HashMap;
 import java.util.Map;
 
+import static auctionsniper.AuctionEventListener.*;
+import static auctionsniper.AuctionEventListener.PriceSource.*;
+
 public class AuctionMessageTranslator implements IncomingChatMessageListener {
+    private String sniperXMPPId;
     private AuctionEventListener listener;
 
-    public AuctionMessageTranslator(AuctionEventListener listener) {
+    public AuctionMessageTranslator(String sniperXMPPId, AuctionEventListener listener) {
+        this.sniperXMPPId = sniperXMPPId;
         this.listener = listener;
     }
 
@@ -23,7 +28,7 @@ public class AuctionMessageTranslator implements IncomingChatMessageListener {
         if ("CLOSE".equals(type)) {
             listener.auctionClosed();
         } else if ("PRICE".equals(type)) {
-            listener.currentPrice(event.currentPrice(), event.increment());
+            listener.currentPrice(event.currentPrice(), event.increment(), event.isFrom(sniperXMPPId));
         }
     }
 
@@ -40,6 +45,14 @@ public class AuctionMessageTranslator implements IncomingChatMessageListener {
 
         public int increment() {
             return Integer.parseInt(fields.get("Increment"));
+        }
+
+        public String bidder() {
+            return fields.get("Bidder");
+        }
+
+        public PriceSource isFrom(String sniperXMPPId) {
+            return sniperXMPPId.equals(bidder()) ? FromSniper : FromOtherBidder;
         }
 
         private void addField(String field) {

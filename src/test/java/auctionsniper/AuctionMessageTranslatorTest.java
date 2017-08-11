@@ -8,14 +8,17 @@ import org.junit.Rule;
 import org.junit.Test;
 import org.jxmpp.jid.EntityBareJid;
 
+import static auctionsniper.AuctionEventListener.PriceSource.*;
+
 public class AuctionMessageTranslatorTest {
     @Rule
     public JUnitRuleMockery context = new JUnitRuleMockery();
 
+    private static final String SNIPER_XMPP_ID = "sniper xmpp id";
     public static final Chat UNUSED_CHAT = null;
     public static final EntityBareJid UNUSED_JID = null;
     private final AuctionEventListener listener = context.mock(AuctionEventListener.class);
-    private final AuctionMessageTranslator translator = new AuctionMessageTranslator(listener);
+    private final AuctionMessageTranslator translator = new AuctionMessageTranslator(SNIPER_XMPP_ID, listener);
 
     @Test
     public void notifiesAuctionClosedWhenCloseMessageReceived() {
@@ -32,12 +35,12 @@ public class AuctionMessageTranslatorTest {
     }
 
     @Test
-    public void notifiesBidDetailsWhenCurrentPriceMessageReceived() {
+    public void notifiesBidDetailsWhenCurrentPriceMessageReceivedFromOtherBidder() {
         int price = 192;
         int increment = 7;
         context.checking(new Expectations(){
             {
-                oneOf(listener).currentPrice(price, increment);
+                oneOf(listener).currentPrice(price, increment, FromOtherBidder);
             }
         });
 
@@ -45,6 +48,24 @@ public class AuctionMessageTranslatorTest {
         message.setBody(String.format(
                 "SOLVersion: 1.1; Event: PRICE; CurrentPrice: %d; Increment: %d; Bidder: Someoene else;",
                 price, increment));
+
+        translator.newIncomingMessage(UNUSED_JID, message, UNUSED_CHAT);
+    }
+
+    @Test
+    public void notifiesBidDetailsWhenCurrentPriceMessageReceivedFromSniper() {
+        int price = 234;
+        int increment = 5;
+        context.checking(new Expectations(){
+            {
+                oneOf(listener).currentPrice(price, increment, FromSniper);
+            }
+        });
+
+        Message message = new Message();
+        message.setBody(String.format(
+                "SOLVersion: 1.1; Event: PRICE; CurrentPrice: %d; Increment: %d; Bidder: %s;",
+                price, increment, SNIPER_XMPP_ID));
 
         translator.newIncomingMessage(UNUSED_JID, message, UNUSED_CHAT);
     }
