@@ -69,7 +69,7 @@ public class FakeAuctionServer {
     }
 
     public void announceClosed() {
-        incomingListener.getChatParner().ifPresent((partner) -> {
+        incomingListener.getChatPartner().ifPresent((partner) -> {
             try {
                 partner.chat.send("SOLVersion: 1.1; Event: CLOSE");
             } catch (SmackException.NotConnectedException ignored) {
@@ -90,7 +90,7 @@ public class FakeAuctionServer {
     private void receivesAMessageMatching(String sniperId, Matcher<? super String> messageMatcher) throws InterruptedException {
         incomingListener.receiveAMessage(messageMatcher);
 
-        ChatPartner partner = incomingListener.getChatParner().get();
+        ChatPartner partner = incomingListener.getChatPartner().get();
 
         // `IncomingChatMessageListener`では`EntityFullJid`を引数に取らない(`EntityBareJid`を取る)ので、`Resource Name`を付加して比較する。
         assertThat(partner.jid.asEntityBareJidString() + "/" + Main.AUCTION_RESOURCE, is(sniperId));
@@ -101,7 +101,7 @@ public class FakeAuctionServer {
     }
 
     public void reportPrice(int price, int increment, String bidder) {
-        incomingListener.getChatParner().ifPresent((partner) -> {
+        incomingListener.getChatPartner().ifPresent((partner) -> {
             try {
                 String message = String.format(
                         "SOLVersion: 1.1; Event: PRICE; CurrentPrice: %d; Increment: %d; Bidder: %s;",
@@ -134,7 +134,7 @@ public class FakeAuctionServer {
 
         }
 
-        public Optional<ChatPartner> getChatParner() {
+        public Optional<ChatPartner> getChatPartner() {
             synchronized (chatPartners) {
                 return chatPartners.stream().findFirst();
             }
