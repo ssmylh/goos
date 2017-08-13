@@ -70,7 +70,6 @@ public class AuctionSniperTest {
         sniper.auctionClosed();
     }
 
-    // `AuctionSniper を実装しないと正常にテストが落ちない。
     @Test
     public void reportsWonIfAuctionClosesWhenWinning() {
         context.checking(new Expectations() {
