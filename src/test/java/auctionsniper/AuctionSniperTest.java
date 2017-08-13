@@ -46,7 +46,7 @@ public class AuctionSniperTest {
     public void reportsIsWinningWhenCurrentPriceComesFromSniper() {
         context.checking(new Expectations() {
             {
-                atLeast(1).of(sniperListener).sniperWinnig();
+                atLeast(1).of(sniperListener).sniperWinning();
             }
         });
         sniper.currentPrice(123, 45, FromSniper);
@@ -77,7 +77,7 @@ public class AuctionSniperTest {
             {
                 ignoring(auction);
 
-                allowing(sniperListener).sniperWinnig();
+                allowing(sniperListener).sniperWinning();
                 then(sniperStates.is("winning"));
 
                 atLeast(1).of(sniperListener).sniperWon();

@@ -138,7 +138,7 @@ public class Main {
         }
 
         @Override
-        public void sniperWinnig() {
+        public void sniperWinning() {
             showStatus(MainWindow.STATUS_WINNING);
         }
 
