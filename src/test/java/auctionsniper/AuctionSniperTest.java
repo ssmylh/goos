@@ -1,6 +1,8 @@
 package auctionsniper;
 
+import auctionsniper.AuctionEventListener.PriceSource;
 import org.jmock.Expectations;
+import org.jmock.States;
 import org.jmock.integration.junit4.JUnitRuleMockery;
 import org.junit.Rule;
 import org.junit.Test;
@@ -10,13 +12,14 @@ import static auctionsniper.AuctionEventListener.PriceSource.*;
 public class AuctionSniperTest {
     @Rule
     public JUnitRuleMockery context = new JUnitRuleMockery();
+    private final States sniperStates = context.states("sniper");
     private final Auction auction = context.mock(Auction.class);
     private final SniperListener sniperListener = context.mock(SniperListener.class);
     private final AuctionSniper sniper = new AuctionSniper(auction, sniperListener);
 
 
     @Test
-    public void reportsLostWhenAuctionCloses() {
+    public void reportsLostWhenAuctionClosesImmediately() {
         context.checking(new Expectations() {
             {
                 oneOf(sniperListener).sniperLost();
@@ -47,6 +50,24 @@ public class AuctionSniperTest {
                 atLeast(1).of(sniperListener).sniperWinnig();
             }
         });
-        sniper.currentPrice(123, 45, AuctionEventListener.PriceSource.FromSniper);
+        sniper.currentPrice(123, 45, PriceSource.FromSniper);
+    }
+
+    @Test
+    public void reportsLostIfAuctionClosesWhenBidding() {
+        context.checking(new Expectations() {
+            {
+                ignoring(auction);
+
+                allowing(sniperListener).sniperBidding();
+                then(sniperStates.is("bidding"));
+
+                atLeast(1).of(sniperListener).sniperLost();
+                when(sniperStates.is("bidding"));
+            }
+        });
+
+        sniper.currentPrice(123, 45, FromOtherBidder);
+        sniper.auctionClosed();
     }
 }
