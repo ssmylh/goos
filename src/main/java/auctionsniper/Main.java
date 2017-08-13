@@ -137,11 +137,17 @@ public class Main {
             showStatus(MainWindow.STATUS_BIDDING);
         }
 
+        @Override
+        public void sniperWinnig() {
+            showStatus(MainWindow.STATUS_WINNING);
+        }
+
 //        public void sniperWinning() { TODO
 //        }
 
         private void showStatus(String status) {
             SwingUtilities.invokeLater(() -> ui.showStatus(status));
         }
+
     }
 }
