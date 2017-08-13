@@ -1,6 +1,5 @@
 package auctionsniper;
 
-import auctionsniper.AuctionEventListener.PriceSource;
 import org.jmock.Expectations;
 import org.jmock.States;
 import org.jmock.integration.junit4.JUnitRuleMockery;
@@ -50,7 +49,7 @@ public class AuctionSniperTest {
                 atLeast(1).of(sniperListener).sniperWinnig();
             }
         });
-        sniper.currentPrice(123, 45, PriceSource.FromSniper);
+        sniper.currentPrice(123, 45, FromSniper);
     }
 
     @Test
@@ -68,6 +67,25 @@ public class AuctionSniperTest {
         });
 
         sniper.currentPrice(123, 45, FromOtherBidder);
+        sniper.auctionClosed();
+    }
+
+    // `AuctionSniper を実装しないと正常にテストが落ちない。
+    @Test
+    public void reportsWonIfAuctionClosesWhenWinning() {
+        context.checking(new Expectations() {
+            {
+                ignoring(auction);
+
+                allowing(sniperListener).sniperWinnig();
+                then(sniperStates.is("winning"));
+
+                atLeast(1).of(sniperListener).sniperWon();
+                when(sniperStates.is("winning"));
+            }
+        });
+
+        sniper.currentPrice(123, 45, FromSniper);
         sniper.auctionClosed();
     }
 }

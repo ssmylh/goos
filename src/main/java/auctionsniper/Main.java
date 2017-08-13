@@ -142,8 +142,10 @@ public class Main {
             showStatus(MainWindow.STATUS_WINNING);
         }
 
-//        public void sniperWinning() { TODO
-//        }
+        @Override
+        public void sniperWon() {
+            showStatus(MainWindow.STATUS_WON);
+        }
 
         private void showStatus(String status) {
             SwingUtilities.invokeLater(() -> ui.showStatus(status));
