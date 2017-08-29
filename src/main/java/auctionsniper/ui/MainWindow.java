@@ -1,7 +1,6 @@
 package auctionsniper.ui;
 
 import javax.swing.*;
-import javax.swing.border.LineBorder;
 import java.awt.*;
 
 public class MainWindow extends JFrame {
@@ -13,25 +12,32 @@ public class MainWindow extends JFrame {
     public static final String STATUS_WINNING = "Winning";
     public static final String STATUS_WON = "Won";
 
-    private JLabel sniperStatus = createLabel(STATUS_JOINING);
+    private static final String SNIPERS_TABLE_NAME = "Snipers Table";
+    private final SnipersTableModel snipers = new SnipersTableModel();
 
     public MainWindow() {
         super("Auction Sniper");
         setName(MAIN_WINDOW_NAME);
-        add(sniperStatus);
+        fillContentPane(makeSnipersTable());
         pack();
         setDefaultCloseOperation(JFrame.EXIT_ON_CLOSE);
         setVisible(true);
     }
 
-    private static JLabel createLabel(String initialText) {
-        JLabel label = new JLabel(initialText);
-        label.setName(SNIPER_STATUS_NAME);
-        label.setBorder(new LineBorder(Color.black));
-        return label;
+    private void fillContentPane(JTable snipersTable) {
+        Container contentPane = getContentPane();
+        contentPane.setLayout(new BorderLayout());
+
+        contentPane.add(new JScrollPane(snipersTable), BorderLayout.CENTER);
+    }
+
+    private JTable makeSnipersTable() {
+        JTable sniepesJTable = new JTable(snipers);
+        sniepesJTable.setName(SNIPERS_TABLE_NAME);
+        return sniepesJTable;
     }
 
     public void showStatus(String status) {
-        sniperStatus.setText(status);
+        snipers.setStatusText(status);
     }
 }
