@@ -48,7 +48,7 @@ public class Main {
                 args[ARG_XMPP_DOMAIN_NAME],
                 args[ARG_USERNAME],
                 args[ARG_PASSWORD]);
-        main.joinAuction(connection, auctionJid(args[ARG_ITEM_ID], args[ARG_XMPP_DOMAIN_NAME]));
+        main.joinAuction(connection, auctionJid(args[ARG_ITEM_ID], args[ARG_XMPP_DOMAIN_NAME]), args[ARG_ITEM_ID]);
     }
 
     private void startUserInterface() throws Exception {
@@ -76,7 +76,7 @@ public class Main {
         return JidCreate.entityBareFrom(String.format(AUCTION_ID_FORMAT, itemId, xmppDomainName));
     }
 
-    private void joinAuction(AbstractXMPPConnection connection, EntityBareJid auctionJid) {
+    private void joinAuction(AbstractXMPPConnection connection, EntityBareJid auctionJid, String itemId) {
         disconnectWhenUICloses(connection);
 
         ChatManager manager = ChatManager.getInstanceFor(connection);
@@ -85,7 +85,7 @@ public class Main {
 
         Auction auction = new XMPPAuction(chat);
         // `AbstractXMPPConnection.connection` は `EntityFullJid` を返す。
-        manager.addIncomingListener(new AuctionMessageTranslator(connection.getUser().toString(), new AuctionSniper(auction, new SniperStateDisplayer())));
+        manager.addIncomingListener(new AuctionMessageTranslator(connection.getUser().toString(), new AuctionSniper(itemId, auction, new SniperStateDisplayer())));
         auction.join();
     }
 
@@ -133,7 +133,7 @@ public class Main {
         }
 
         @Override
-        public void sniperBidding() {
+        public void sniperBidding(SniperState state) {
             showStatus(MainWindow.STATUS_BIDDING);
         }
 

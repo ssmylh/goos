@@ -14,8 +14,8 @@ public class AuctionSniperTest {
     private final States sniperStates = context.states("sniper");
     private final Auction auction = context.mock(Auction.class);
     private final SniperListener sniperListener = context.mock(SniperListener.class);
-    private final AuctionSniper sniper = new AuctionSniper(auction, sniperListener);
-
+    private static final String ITEM_ID = "item-id";
+    private final AuctionSniper sniper = new AuctionSniper(ITEM_ID, auction, sniperListener);
 
     @Test
     public void reportsLostWhenAuctionClosesImmediately() {
@@ -32,10 +32,13 @@ public class AuctionSniperTest {
     public void bidsHigherAndReportsBiddingWhenNewPriceArrives() {
         int price = 1001;
         int increment = 25;
+        int bid = price + increment;
         context.checking(new Expectations() {
             {
-                oneOf(auction).bid(price + increment);
-                atLeast(1).of(sniperListener).sniperBidding();
+                oneOf(auction).bid(bid);
+                atLeast(1).of(sniperListener).sniperBidding(
+                        new SniperState(ITEM_ID, price, bid)
+                );
             }
         });
 
@@ -58,7 +61,7 @@ public class AuctionSniperTest {
             {
                 ignoring(auction);
 
-                allowing(sniperListener).sniperBidding();
+                allowing(sniperListener).sniperBidding(with(any(SniperState.class)));
                 then(sniperStates.is("bidding"));
 
                 atLeast(1).of(sniperListener).sniperLost();
