@@ -129,7 +129,7 @@ public class Main {
     public class SniperStateDisplayer implements SniperListener {
         @Override
         public void sniperLost() {
-            showStatus(new SniperState("", 0, 0), MainWindow.STATUS_LOST);
+            showStatus(null, MainWindow.STATUS_LOST);
         }
 
         @Override
@@ -139,12 +139,12 @@ public class Main {
 
         @Override
         public void sniperWinning() {
-            showStatus(new SniperState("", 0, 0), MainWindow.STATUS_WINNING);
+            showStatus(null, MainWindow.STATUS_WINNING);
         }
 
         @Override
         public void sniperWon() {
-            showStatus(new SniperState("", 0, 0), MainWindow.STATUS_WON);
+            showStatus(null, MainWindow.STATUS_WON);
         }
 
         private void showStatus(SniperState state, String statusText) {
