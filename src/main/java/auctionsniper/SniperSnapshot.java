@@ -1,11 +1,11 @@
 package auctionsniper;
 
-public final class SniperState {
+public final class SniperSnapshot {
     public final String itemId;
     public final int lastPrice;
     public final int lastBid;
 
-    public SniperState(String itemId, int lastPrice, int lastBid) {
+    public SniperSnapshot(String itemId, int lastPrice, int lastBid) {
         this.itemId = itemId;
         this.lastPrice = lastPrice;
         this.lastBid = lastBid;
@@ -16,7 +16,7 @@ public final class SniperState {
         if (this == o) return true;
         if (o == null || getClass() != o.getClass()) return false;
 
-        SniperState that = (SniperState) o;
+        SniperSnapshot that = (SniperSnapshot) o;
 
         if (lastPrice != that.lastPrice) return false;
         if (lastBid != that.lastBid) return false;
@@ -33,7 +33,7 @@ public final class SniperState {
 
     @Override
     public String toString() {
-        return "SniperState{" +
+        return "SniperSnapshot{" +
                 "itemId='" + itemId + '\'' +
                 ", lastPrice=" + lastPrice +
                 ", lastBid=" + lastBid +

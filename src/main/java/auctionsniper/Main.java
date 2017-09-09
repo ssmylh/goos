@@ -133,7 +133,7 @@ public class Main {
         }
 
         @Override
-        public void sniperBidding(SniperState state) {
+        public void sniperBidding(SniperSnapshot state) {
             showStatus(state, MainWindow.STATUS_BIDDING);
         }
 
@@ -147,7 +147,7 @@ public class Main {
             showStatus(null, MainWindow.STATUS_WON);
         }
 
-        private void showStatus(SniperState state, String statusText) {
+        private void showStatus(SniperSnapshot state, String statusText) {
             SwingUtilities.invokeLater(() -> ui.sniperStatusChanged(state, statusText));
         }
 
