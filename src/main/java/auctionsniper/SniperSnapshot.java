@@ -1,5 +1,7 @@
 package auctionsniper;
 
+import static auctionsniper.SniperState.*;
+
 public final class SniperSnapshot {
     public final String itemId;
     public final int lastPrice;
@@ -11,6 +13,26 @@ public final class SniperSnapshot {
         this.lastPrice = lastPrice;
         this.lastBid = lastBid;
         this.state = state;
+    }
+
+    public SniperSnapshot bidding(int newLastPrice, int newLastBid) {
+        return new SniperSnapshot(itemId, newLastPrice, newLastBid, BIDDING);
+    }
+
+    public SniperSnapshot winning(int newLastPrice) {
+        return new SniperSnapshot(itemId, newLastPrice, lastBid, WINNING);
+    }
+
+    public static SniperSnapshot joining(String itemId) {
+        return new SniperSnapshot(itemId, 0, 0, JOINING);
+    }
+
+    public SniperSnapshot won() {
+        return new SniperSnapshot(itemId, lastPrice, lastBid, WON);
+    }
+
+    public SniperSnapshot lost() {
+        return new SniperSnapshot(itemId, lastPrice, lastBid, LOST);
     }
 
     @Override

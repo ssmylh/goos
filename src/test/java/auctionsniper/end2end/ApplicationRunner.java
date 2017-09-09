@@ -31,7 +31,7 @@ public class ApplicationRunner {
         thread.start();
         driver = new AuctionSniperDriver(1000);
         itemId = auction.getItemId();
-        driver.showsSniperStatus("", 0, 0, MainWindow.STATUS_JOINING);
+        driver.showsSniperStatus(itemId, 0, 0, MainWindow.STATUS_JOINING);
     }
 
     public void hasShownSniperIsBidding(int lastPlace, int lastBid) {

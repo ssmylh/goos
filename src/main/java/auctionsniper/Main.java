@@ -36,12 +36,12 @@ public class Main {
     @SuppressWarnings("unused")
     private Chat notToBeGCd;
 
-    public Main() throws Exception {
-        startUserInterface();
+    public Main(String itemId) throws Exception {
+        startUserInterface(itemId);
     }
 
     public static void main(String... args) throws Exception {
-        Main main = new Main();
+        Main main = new Main(args[ARG_ITEM_ID]);
         AbstractXMPPConnection connection = connectTo(
                 args[ARG_HOST_NAME],
                 Integer.parseInt(args[ARG_PORT]),
@@ -51,9 +51,9 @@ public class Main {
         main.joinAuction(connection, auctionJid(args[ARG_ITEM_ID], args[ARG_XMPP_DOMAIN_NAME]), args[ARG_ITEM_ID]);
     }
 
-    private void startUserInterface() throws Exception {
+    private void startUserInterface(String itemId) throws Exception {
         SwingUtilities.invokeAndWait(() -> {
-            this.ui = new MainWindow();
+            this.ui = new MainWindow(itemId);
         });
     }
 
@@ -130,19 +130,13 @@ public class Main {
         @Override
         public void sniperLost() {
             // TODO
-            showStatus(null);
-        }
-
-        @Override
-        public void sniperWinning() {
-            // TODO
-            showStatus(null);
+            SwingUtilities.invokeLater(() -> ui.sniperLost());
         }
 
         @Override
         public void sniperWon() {
             // TODO
-            showStatus(null);
+            SwingUtilities.invokeLater(() -> ui.sniperWon());
         }
 
         @Override

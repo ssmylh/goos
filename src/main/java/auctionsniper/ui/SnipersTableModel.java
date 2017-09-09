@@ -1,16 +1,12 @@
 package auctionsniper.ui;
 
 import auctionsniper.SniperSnapshot;
-import auctionsniper.SniperState;
 
 import javax.swing.table.AbstractTableModel;
 
-import static auctionsniper.ui.MainWindow.*;
-
 public class SnipersTableModel extends AbstractTableModel {
-    private final static SniperSnapshot STARTING_UP = new SniperSnapshot("", 0, 0, SniperState.JOINING);
-    private SniperSnapshot snapshot = STARTING_UP;
-    private String statusText = STATUS_JOINING;
+    private SniperSnapshot snapshot;
+    private String statusText;
     private static String[] STATUS_TEXT = {
             MainWindow.STATUS_JOINING,
             MainWindow.STATUS_BIDDING,
@@ -18,6 +14,11 @@ public class SnipersTableModel extends AbstractTableModel {
             MainWindow.STATUS_LOST,
             MainWindow.STATUS_WON
     };
+
+    public SnipersTableModel(SniperSnapshot snapshot) {
+        this.snapshot = snapshot;
+        this.statusText = STATUS_TEXT[snapshot.state.ordinal()];
+    }
 
     @Override
     public int getColumnCount() {
@@ -50,4 +51,19 @@ public class SnipersTableModel extends AbstractTableModel {
         this.statusText = STATUS_TEXT[newSniperSnapshot.state.ordinal()];
         fireTableRowsUpdated(0, 0);
     }
+
+    // TODO
+    public void sniperWon() {
+        this.snapshot = snapshot.won();
+        this.statusText = STATUS_TEXT[snapshot.state.ordinal()];
+        fireTableRowsUpdated(0, 0);
+    }
+
+    // TODO
+    public void sniperLost() {
+        this.snapshot = snapshot.lost();
+        this.statusText = STATUS_TEXT[snapshot.state.ordinal()];
+        fireTableRowsUpdated(0, 0);
+    }
+
 }

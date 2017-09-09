@@ -3,15 +3,15 @@ package auctionsniper;
 import static auctionsniper.AuctionEventListener.PriceSource.*;
 
 public class AuctionSniper implements AuctionEventListener {
-    private String itemId;
     private SniperListener listener;
     private Auction auction;
     private boolean isWinning;
+    private SniperSnapshot snapshot;
 
     public AuctionSniper(String itemId, Auction auction, SniperListener listener) {
-        this.itemId = itemId;
         this.auction = auction;
         this.listener = listener;
+        this.snapshot = SniperSnapshot.joining(itemId);
     }
 
     @Override
@@ -27,11 +27,12 @@ public class AuctionSniper implements AuctionEventListener {
     public void currentPrice(int price, int increment, PriceSource priceSource) {
         isWinning = priceSource == FromSniper;
         if (isWinning) {
-            listener.sniperWinning();
+            snapshot = snapshot.winning(price);
         } else {
             int bid = price + increment;
             auction.bid(bid);
-            listener.sniperStateChanged(new SniperSnapshot(itemId, price, bid, SniperState.BIDDING));
+            snapshot = snapshot.bidding(price, bid);
         }
+        listener.sniperStateChanged(snapshot);
     }
 }

@@ -20,7 +20,7 @@ public class SnipersTableModelTest {
     @Rule
     public final JUnitRuleMockery context = new JUnitRuleMockery();
     private TableModelListener listener = context.mock(TableModelListener.class);
-    private final SnipersTableModel model = new SnipersTableModel();
+    private final SnipersTableModel model = new SnipersTableModel(SniperSnapshot.joining("item id"));
 
     @Before
     public void attachModelListener() {

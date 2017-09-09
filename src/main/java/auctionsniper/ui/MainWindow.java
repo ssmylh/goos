@@ -15,11 +15,12 @@ public class MainWindow extends JFrame {
     public static final String STATUS_WON = "Won";
 
     private static final String SNIPERS_TABLE_NAME = "Snipers Table";
-    private final SnipersTableModel snipers = new SnipersTableModel();
+    private final SnipersTableModel snipers;
 
-    public MainWindow() {
+    public MainWindow(String itemId) {
         super("Auction Sniper");
         setName(MAIN_WINDOW_NAME);
+        snipers = new SnipersTableModel(SniperSnapshot.joining(itemId));// makeSnipersTableの呼び出しより前に設定すること。
         fillContentPane(makeSnipersTable());
         pack();
         setDefaultCloseOperation(JFrame.EXIT_ON_CLOSE);
@@ -41,5 +42,15 @@ public class MainWindow extends JFrame {
 
     public void sniperStatusChanged(SniperSnapshot sniperSnapshot) {
         snipers.sniperStatusChanged(sniperSnapshot);
+    }
+
+    // TODO
+    public void sniperWon() {
+        snipers.sniperWon();
+    }
+
+    // TODO
+    public void sniperLost() {
+        snipers.sniperLost();
     }
 }
