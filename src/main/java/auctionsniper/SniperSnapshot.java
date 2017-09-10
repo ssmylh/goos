@@ -27,12 +27,8 @@ public final class SniperSnapshot {
         return new SniperSnapshot(itemId, 0, 0, JOINING);
     }
 
-    public SniperSnapshot won() {
-        return new SniperSnapshot(itemId, lastPrice, lastBid, WON);
-    }
-
-    public SniperSnapshot lost() {
-        return new SniperSnapshot(itemId, lastPrice, lastBid, LOST);
+    public SniperSnapshot closed() {
+        return new SniperSnapshot(itemId, lastPrice, lastBid, state.whenAuctionClosed());
     }
 
     @Override

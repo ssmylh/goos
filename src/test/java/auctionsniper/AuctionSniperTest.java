@@ -25,7 +25,7 @@ public class AuctionSniperTest {
     public void reportsLostWhenAuctionClosesImmediately() {
         context.checking(new Expectations() {
             {
-                oneOf(sniperListener).sniperLost();
+                oneOf(sniperListener).sniperStateChanged(new SniperSnapshot(ITEM_ID, 0, 0, LOST));
             }
         });
 
@@ -73,7 +73,7 @@ public class AuctionSniperTest {
                 allowing(sniperListener).sniperStateChanged(with(aSniperThatIs(BIDDING)));
                 then(sniperStates.is("bidding"));
 
-                atLeast(1).of(sniperListener).sniperLost();
+                atLeast(1).of(sniperListener).sniperStateChanged(new SniperSnapshot(ITEM_ID, 123, 168, LOST));
                 when(sniperStates.is("bidding"));
             }
         });
@@ -91,7 +91,7 @@ public class AuctionSniperTest {
                 allowing(sniperListener).sniperStateChanged(with(aSniperThatIs(WINNING)));
                 then(sniperStates.is("winning"));
 
-                atLeast(1).of(sniperListener).sniperWon();
+                atLeast(1).of(sniperListener).sniperStateChanged(new SniperSnapshot(ITEM_ID, 123, 0, WON));
                 when(sniperStates.is("winning"));
             }
         });
