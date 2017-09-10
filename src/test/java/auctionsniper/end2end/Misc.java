@@ -17,6 +17,7 @@ import java.util.ArrayList;
 import java.util.List;
 
 public class Misc {
+    @Ignore
     @Test
     public void xxx() throws Exception {
         AbstractXMPPConnection conn1 = null;
