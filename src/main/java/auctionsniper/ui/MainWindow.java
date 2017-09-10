@@ -1,7 +1,5 @@
 package auctionsniper.ui;
 
-import auctionsniper.SniperSnapshot;
-
 import javax.swing.*;
 import java.awt.*;
 
@@ -12,10 +10,10 @@ public class MainWindow extends JFrame {
     private static final String SNIPERS_TABLE_NAME = "Snipers Table";
     private final SnipersTableModel snipers;
 
-    public MainWindow(String itemId) {
+    public MainWindow(SnipersTableModel snipers) {
         super("Auction Sniper");
         setName(MAIN_WINDOW_NAME);
-        snipers = new SnipersTableModel(SniperSnapshot.joining(itemId));// makeSnipersTableの呼び出しより前に設定すること。
+        this.snipers = snipers;// makeSnipersTableの呼び出しより前に設定すること。
         fillContentPane(makeSnipersTable());
         pack();
         setDefaultCloseOperation(JFrame.EXIT_ON_CLOSE);
@@ -33,9 +31,5 @@ public class MainWindow extends JFrame {
         JTable sniepesJTable = new JTable(snipers);
         sniepesJTable.setName(SNIPERS_TABLE_NAME);
         return sniepesJTable;
-    }
-
-    public void sniperStatusChanged(SniperSnapshot sniperSnapshot) {
-        snipers.sniperStatusChanged(sniperSnapshot);
     }
 }

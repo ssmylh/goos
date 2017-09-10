@@ -41,7 +41,7 @@ public class SnipersTableModelTest {
         });
 
         SniperSnapshot snapshot = new SniperSnapshot("item id", 555, 666, BIDDING);
-        model.sniperStatusChanged(snapshot);
+        model.sniperStateChanged(snapshot);
 
         assertColumnEquals(Column.ITEM_IDENTIFIER, "item id");
         assertColumnEquals(Column.LAST_PRICE, 555);

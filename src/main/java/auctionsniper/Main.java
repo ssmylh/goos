@@ -1,6 +1,8 @@
 package auctionsniper;
 
 import auctionsniper.ui.MainWindow;
+import auctionsniper.ui.SnipersTableModel;
+import auctionsniper.ui.SwingThreadSniperListener;
 import org.jivesoftware.smack.AbstractXMPPConnection;
 import org.jivesoftware.smack.ConnectionConfiguration;
 import org.jivesoftware.smack.SmackException;
@@ -32,12 +34,14 @@ public class Main {
     public static final String JOIN_COMMAND_FORMAT = "SOLVersion: 1.1; Command: JOIN;";
     public static final String BID_COMMAND_FORMAT = "SOLVersion: 1.1; Command: BID; Price: %d;";
 
+    private final SnipersTableModel snipers;
     private volatile MainWindow ui;
     @SuppressWarnings("unused")
     private Chat notToBeGCd;
 
     public Main(String itemId) throws Exception {
-        startUserInterface(itemId);
+        snipers = new SnipersTableModel(SniperSnapshot.joining(itemId));
+        startUserInterface(snipers);
     }
 
     public static void main(String... args) throws Exception {
@@ -51,9 +55,9 @@ public class Main {
         main.joinAuction(connection, auctionJid(args[ARG_ITEM_ID], args[ARG_XMPP_DOMAIN_NAME]), args[ARG_ITEM_ID]);
     }
 
-    private void startUserInterface(String itemId) throws Exception {
+    private void startUserInterface(SnipersTableModel snipers) throws Exception {
         SwingUtilities.invokeAndWait(() -> {
-            this.ui = new MainWindow(itemId);
+            this.ui = new MainWindow(snipers);
         });
     }
 
@@ -85,7 +89,8 @@ public class Main {
 
         Auction auction = new XMPPAuction(chat);
         // `AbstractXMPPConnection.connection` は `EntityFullJid` を返す。
-        manager.addIncomingListener(new AuctionMessageTranslator(connection.getUser().toString(), new AuctionSniper(itemId, auction, new SniperStateDisplayer())));
+        manager.addIncomingListener(new AuctionMessageTranslator(connection.getUser().toString(),
+                new AuctionSniper(itemId, auction, new SwingThreadSniperListener(snipers))));
         auction.join();
     }
 
@@ -123,13 +128,6 @@ public class Main {
             } catch (InterruptedException e) {
                 e.printStackTrace();
             }
-        }
-    }
-
-    public class SniperStateDisplayer implements SniperListener {
-        @Override
-        public void sniperStateChanged(SniperSnapshot snapshot) {
-            SwingUtilities.invokeLater(() -> ui.sniperStatusChanged(snapshot));
         }
     }
 }
