@@ -88,8 +88,9 @@ public class Main {
         notToBeGCd = chat;
 
         Auction auction = new XMPPAuction(chat);
-        // `AbstractXMPPConnection.connection` は `EntityFullJid` を返す。
-        manager.addIncomingListener(new AuctionMessageTranslator(connection.getUser().toString(),
+
+        // TODO `AuctionSniper` 内の `SniperSnapshot` と、`SnipersTableModel` 内のそれが重複している。
+        manager.addIncomingListener(new AuctionMessageTranslator(connection.getUser().toString(), // `AbstractXMPPConnection.connection` は `EntityFullJid` を返す。
                 new AuctionSniper(itemId, auction, new SwingThreadSniperListener(snipers))));
         auction.join();
     }
