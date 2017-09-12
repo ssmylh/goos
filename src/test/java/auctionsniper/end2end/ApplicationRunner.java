@@ -1,6 +1,7 @@
 package auctionsniper.end2end;
 
 import auctionsniper.Main;
+import auctionsniper.ui.MainWindow;
 import auctionsniper.ui.SnipersTableModel;
 
 import static auctionsniper.SniperState.*;
@@ -33,6 +34,8 @@ public class ApplicationRunner {
         thread.start();
         driver = new AuctionSniperDriver(1000);
         itemId = auction.getItemId();
+        driver.hasTitle(MainWindow.APPLICATION_TITLE);
+        driver.hasColumnTitles();
         driver.showsSniperStatus(itemId, 0, 0, SnipersTableModel.textFor(JOINING));
     }
 
