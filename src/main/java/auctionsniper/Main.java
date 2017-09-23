@@ -20,6 +20,8 @@ import java.awt.event.WindowAdapter;
 import java.awt.event.WindowEvent;
 import java.io.IOException;
 import java.net.InetAddress;
+import java.util.ArrayList;
+import java.util.List;
 
 public class Main {
     private static final int ARG_HOST_NAME = 0;
@@ -27,7 +29,6 @@ public class Main {
     private static final int ARG_XMPP_DOMAIN_NAME = 2;
     private static final int ARG_USERNAME = 3;
     private static final int ARG_PASSWORD = 4;
-    private static final int ARG_ITEM_ID = 5;
     public static final String AUCTION_RESOURCE = "Auction";
     public static final String ITEM_ID_AS_LOGIN = "auction-%s";
     public static final String AUCTION_ID_FORMAT = ITEM_ID_AS_LOGIN + "@%s/" + AUCTION_RESOURCE;
@@ -37,7 +38,7 @@ public class Main {
     private final SnipersTableModel snipers;
     private volatile MainWindow ui;
     @SuppressWarnings("unused")
-    private Chat notToBeGCd;
+    private List<Chat> notToBeGCd = new ArrayList<>();
 
     public Main(String itemId) throws Exception {
         snipers = new SnipersTableModel(SniperSnapshot.joining(itemId));
@@ -45,14 +46,20 @@ public class Main {
     }
 
     public static void main(String... args) throws Exception {
-        Main main = new Main(args[ARG_ITEM_ID]);
+        int itemIdStartIndex = 5;
+        Main main = new Main(args[itemIdStartIndex]);// TODO 本では引数が存在しない。
         AbstractXMPPConnection connection = connectTo(
                 args[ARG_HOST_NAME],
                 Integer.parseInt(args[ARG_PORT]),
                 args[ARG_XMPP_DOMAIN_NAME],
                 args[ARG_USERNAME],
                 args[ARG_PASSWORD]);
-        main.joinAuction(connection, auctionJid(args[ARG_ITEM_ID], args[ARG_XMPP_DOMAIN_NAME]), args[ARG_ITEM_ID]);
+
+        main.disconnectWhenUICloses(connection);
+
+        for (int i = itemIdStartIndex; i < args.length; i++) {
+            main.joinAuction(connection, auctionJid(args[i], args[ARG_XMPP_DOMAIN_NAME]), args[i]);
+        }
     }
 
     private void startUserInterface(SnipersTableModel snipers) throws Exception {
@@ -81,11 +88,9 @@ public class Main {
     }
 
     private void joinAuction(AbstractXMPPConnection connection, EntityBareJid auctionJid, String itemId) {
-        disconnectWhenUICloses(connection);
-
         ChatManager manager = ChatManager.getInstanceFor(connection);
         Chat chat = manager.chatWith(auctionJid);
-        notToBeGCd = chat;
+        notToBeGCd.add(chat);
 
         Auction auction = new XMPPAuction(chat);
 
