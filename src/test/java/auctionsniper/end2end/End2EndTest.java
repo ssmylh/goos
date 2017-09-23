@@ -32,7 +32,7 @@ public class End2EndTest {
     public void sniperJoinsAuctionUntilAuctionCloses() throws Exception {
         auction.startSellingItem();
         runner.startBiddingIn(auction);
-        auction.hasReceivedJoinRequestFromSniper(ApplicationRunner.SNIPER_XMPP_ID);
+        auction.hasReceivedJoinRequestFrom(ApplicationRunner.SNIPER_XMPP_ID);
         auction.announceClosed();
         runner.hasShownSniperHasLostAuction(0, 0);
     }
@@ -41,7 +41,7 @@ public class End2EndTest {
     public void sniperMakesAHigherBidButLoses() throws Exception {
         auction.startSellingItem();
         runner.startBiddingIn(auction);
-        auction.hasReceivedJoinRequestFromSniper(ApplicationRunner.SNIPER_XMPP_ID);
+        auction.hasReceivedJoinRequestFrom(ApplicationRunner.SNIPER_XMPP_ID);
 
         auction.reportPrice(1000, 98, "other bidder");
         runner.hasShownSniperIsBidding(1000, 1098);
@@ -56,7 +56,7 @@ public class End2EndTest {
     public void sniperWinsAnAuctionByBiddingHigher() throws Exception {
         auction.startSellingItem();
         runner.startBiddingIn(auction);
-        auction.hasReceivedJoinRequestFromSniper(ApplicationRunner.SNIPER_XMPP_ID);
+        auction.hasReceivedJoinRequestFrom(ApplicationRunner.SNIPER_XMPP_ID);
 
         auction.reportPrice(1000, 98, "other bidder");
         runner.hasShownSniperIsBidding(1000, 1098);
