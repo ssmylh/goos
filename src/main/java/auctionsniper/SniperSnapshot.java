@@ -61,4 +61,9 @@ public final class SniperSnapshot {
                 ", lastBid=" + lastBid +
                 '}';
     }
+
+    public boolean isForSameItemAs(SniperSnapshot snapshot) {
+        return itemId.equals(snapshot.itemId);
+    }
+
 }

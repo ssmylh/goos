@@ -9,7 +9,7 @@ import static auctionsniper.SniperState.*;
 public class ApplicationRunner {
     public static final String SNIPER_ID = "sniper";
     public static final String SNIPER_PASSWORD = "sniper";
-    public static final String SNIPER_XMPP_ID = SNIPER_ID + "@" + FakeAuctionServer.XMPP_HOST_NAME + "/" + Main.AUCTION_RESOURCE;
+    public static final String SNIPER_XMPP_ID_FORMAT = SNIPER_ID + "@" + FakeAuctionServer.XMPP_HOST_NAME + "/%s" ;
     private AuctionSniperDriver driver;
 
     public void startBiddingIn(FakeAuctionServer... auctions) {
