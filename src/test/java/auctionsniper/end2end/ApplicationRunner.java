@@ -12,18 +12,12 @@ public class ApplicationRunner {
     public static final String SNIPER_XMPP_ID = SNIPER_ID + "@" + FakeAuctionServer.XMPP_HOST_NAME + "/" + Main.AUCTION_RESOURCE;
     private AuctionSniperDriver driver;
 
-    public void startBiddingIn(FakeAuctionServer auction) {
+    public void startBiddingIn(FakeAuctionServer... auctions) {
         Thread thread = new Thread("Test Application") {
             @Override
             public void run() {
                 try {
-                    Main.main(
-                            FakeAuctionServer.XMPP_HOST_NAME,
-                            String.valueOf(FakeAuctionServer.XMPP_PORT),
-                            FakeAuctionServer.XMPP_DOMAIN_NAME,
-                            SNIPER_ID,
-                            SNIPER_PASSWORD,
-                            auction.getItemId());
+                    Main.main(arguments(auctions));
                 } catch (Exception e) {
                     e.printStackTrace();
                 }
@@ -34,7 +28,23 @@ public class ApplicationRunner {
         driver = new AuctionSniperDriver(1000);
         driver.hasTitle(MainWindow.APPLICATION_TITLE);
         driver.hasColumnTitles();
-        driver.showsSniperStatus(auction.getItemId(), 0, 0, SnipersTableModel.textFor(JOINING));
+
+        for (FakeAuctionServer auction : auctions) {
+            driver.showsSniperStatus(auction.getItemId(), 0, 0, SnipersTableModel.textFor(JOINING));
+        }
+    }
+
+    static String[] arguments(FakeAuctionServer... auctions) {
+        String[] arguments = new String[auctions.length + 5];
+        arguments[0] = FakeAuctionServer.XMPP_HOST_NAME;
+        arguments[1] = String.valueOf(FakeAuctionServer.XMPP_PORT);
+        arguments[2] = FakeAuctionServer.XMPP_DOMAIN_NAME;
+        arguments[3] = SNIPER_ID;
+        arguments[4] = SNIPER_PASSWORD;
+        for (int i = 0; i < auctions.length; i++) {
+            arguments[i + 5] = auctions[i].getItemId();
+        }
+        return arguments;
     }
 
     public void hasShownSniperIsBidding(FakeAuctionServer auction, int lastPlace, int lastBid) {

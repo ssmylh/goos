@@ -24,7 +24,7 @@ import java.util.Optional;
 import java.util.concurrent.ArrayBlockingQueue;
 import java.util.concurrent.TimeUnit;
 
-import static org.hamcrest.CoreMatchers.*;
+import static org.hamcrest.Matchers.*;
 import static org.junit.Assert.*;
 
 public class FakeAuctionServer {
@@ -122,7 +122,7 @@ public class FakeAuctionServer {
         public void receiveAMessage(Matcher<? super String> messageMatcher) throws InterruptedException {
             Message message = messages.poll(5, TimeUnit.SECONDS);
             assertThat("Message", message, is(notNullValue()));
-            assertThat(message.getBody(), messageMatcher);
+            assertThat(message.getBody(), hasProperty("body", messageMatcher));
         }
 
         @Override
