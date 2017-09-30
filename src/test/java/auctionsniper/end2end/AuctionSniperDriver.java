@@ -2,11 +2,14 @@ package auctionsniper.end2end;
 
 import auctionsniper.ui.MainWindow;
 import com.objogate.wl.swing.AWTEventQueueProber;
+import com.objogate.wl.swing.driver.JButtonDriver;
 import com.objogate.wl.swing.driver.JFrameDriver;
 import com.objogate.wl.swing.driver.JTableDriver;
 import com.objogate.wl.swing.driver.JTableHeaderDriver;
+import com.objogate.wl.swing.driver.JTextFieldDriver;
 import com.objogate.wl.swing.gesture.GesturePerformer;
 
+import javax.swing.*;
 import javax.swing.table.JTableHeader;
 
 import static com.objogate.wl.swing.matcher.IterableComponentsMatcher.*;
@@ -21,6 +24,11 @@ public class AuctionSniperDriver extends JFrameDriver {
                 new AWTEventQueueProber(timeoutMillis, 100));
     }
 
+    public void startBiddingFor(String itemId) {
+        itemIdField().replaceAllText(itemId);
+        bidButton().click();
+    }
+
     public void showsSniperStatus(String itemId, int lastPrice, int lastBid, String statusText) {
         JTableDriver table = new JTableDriver(this);
         table.hasRow(matching(
@@ -33,5 +41,15 @@ public class AuctionSniperDriver extends JFrameDriver {
         headers.hasHeaders(matching(
                 withLabelText("Item"), withLabelText("Last Price"),
                 withLabelText("Last Bid"), withLabelText("State")));
+    }
+
+    private JTextFieldDriver itemIdField() {
+        JTextFieldDriver newItemId = new JTextFieldDriver(this, JTextField.class, named(MainWindow.NEW_ITEM_ID_NAME));
+        newItemId.focusWithMouse();
+        return newItemId;
+    }
+
+    private JButtonDriver bidButton() {
+        return new JButtonDriver(this, JButton.class, named(MainWindow.JOIN_BUTTON_NAME));
     }
 }

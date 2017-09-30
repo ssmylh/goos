@@ -9,28 +9,41 @@ public class MainWindow extends JFrame {
     public static final String SNIPER_STATUS_NAME = "sniper status";
 
     private static final String SNIPERS_TABLE_NAME = "Snipers Table";
-    private final SnipersTableModel snipers;
+    public static final String NEW_ITEM_ID_NAME = "item id";
+    public static final String JOIN_BUTTON_NAME = "join button";
 
     public MainWindow(SnipersTableModel snipers) {
         super(APPLICATION_TITLE);
         setName(MAIN_WINDOW_NAME);
-        this.snipers = snipers;// makeSnipersTableの呼び出しより前に設定すること。
-        fillContentPane(makeSnipersTable());
+        fillContentPane(makeSnipersTable(snipers), makeControls());
         pack();
         setDefaultCloseOperation(JFrame.EXIT_ON_CLOSE);
         setVisible(true);
     }
 
-    private void fillContentPane(JTable snipersTable) {
+    private void fillContentPane(JTable snipersTable, JPanel controls) {
         Container contentPane = getContentPane();
         contentPane.setLayout(new BorderLayout());
-
+        contentPane.add(controls, BorderLayout.NORTH);
         contentPane.add(new JScrollPane(snipersTable), BorderLayout.CENTER);
     }
 
-    private JTable makeSnipersTable() {
+    private JTable makeSnipersTable(SnipersTableModel snipers) {
         JTable sniepesJTable = new JTable(snipers);
         sniepesJTable.setName(SNIPERS_TABLE_NAME);
         return sniepesJTable;
+    }
+
+    private JPanel makeControls() {
+        JPanel controls = new JPanel(new FlowLayout());
+        JTextField itemIdField = new JTextField();
+        itemIdField.setColumns(25);
+        itemIdField.setName(NEW_ITEM_ID_NAME);
+        controls.add(itemIdField);
+
+        JButton joinAuctionButton = new JButton("Join Auction");
+        joinAuctionButton.setName(JOIN_BUTTON_NAME);
+        controls.add(joinAuctionButton);
+        return controls;
     }
 }

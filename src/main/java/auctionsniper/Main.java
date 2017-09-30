@@ -64,7 +64,7 @@ public class Main {
                     args[ARG_PASSWORD],
                     args[i]);
             connections.add(connection);
-            main.joinAuction(connection, auctionJid(args[i], args[ARG_XMPP_DOMAIN_NAME]), args[i]);
+            //main.joinAuction(connection, auctionJid(args[i], args[ARG_XMPP_DOMAIN_NAME]), args[i]);
         }
         connections.forEach((c) -> main.disconnectWhenUICloses(c));
     }
