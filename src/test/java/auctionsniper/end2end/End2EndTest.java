@@ -2,6 +2,7 @@ package auctionsniper.end2end;
 
 import org.junit.After;
 import org.junit.Before;
+import org.junit.BeforeClass;
 import org.junit.Test;
 
 public class End2EndTest {
@@ -13,13 +14,16 @@ public class End2EndTest {
     static final String SNIPER_XMPP_ID = String.format(ApplicationRunner.SNIPER_XMPP_ID_FORMAT, itemId);
     static final String SNIPER_XMPP_ID2 = String.format(ApplicationRunner.SNIPER_XMPP_ID_FORMAT, itemId2);
 
-    @Before
-    public void constructAuction() throws Exception {
+    @BeforeClass
+    public static void workaround4WindowLicker() {
         // WARNING: could not load keyboard layout Mac-JP, using fallback layout with reduced capabilities
         // 上記警告と、P192のアクションバーへのアイテムIDの置換でエラーとなりテストが実行出来ない事へのとりあえずの回避策。
         // 参考 : https://stackoverflow.com/questions/23316432/windowlicker-is-not-working-on-os-x
         System.setProperty("com.objogate.wl.keyboard", "Mac-GB");
+    }
 
+    @Before
+    public void constructAuction() throws Exception {
         this.auction = new FakeAuctionServer(itemId);
         this.auction2 = new FakeAuctionServer(itemId2);
     }
