@@ -115,12 +115,12 @@ public class Main {
         });
     }
 
-    private static AbstractXMPPConnection connectTo(String hostName, int port, String xmpppDomainName, String username, String password, String resource) throws IOException, InterruptedException, SmackException, XMPPException {
+    private static AbstractXMPPConnection connectTo(String hostName, int port, String xmppDomainName, String username, String password, String resource) throws IOException, InterruptedException, SmackException, XMPPException {
         XMPPTCPConnectionConfiguration config = XMPPTCPConnectionConfiguration.builder()
                 .setSecurityMode(ConnectionConfiguration.SecurityMode.disabled)
                 .setHostAddress(InetAddress.getByName(hostName))
                 .setPort(port)
-                .setXmppDomain(xmpppDomainName)
+                .setXmppDomain(xmppDomainName)
                 .setUsernameAndPassword(username, password)
                 .setResource(resource)
                 .build();

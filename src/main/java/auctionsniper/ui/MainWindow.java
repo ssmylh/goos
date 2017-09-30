@@ -38,9 +38,9 @@ public class MainWindow extends JFrame {
     }
 
     private JTable makeSnipersTable(SnipersTableModel snipers) {
-        JTable sniepesJTable = new JTable(snipers);
-        sniepesJTable.setName(SNIPERS_TABLE_NAME);
-        return sniepesJTable;
+        JTable snipersJTable = new JTable(snipers);
+        snipersJTable.setName(SNIPERS_TABLE_NAME);
+        return snipersJTable;
     }
 
     private JPanel makeControls() {
