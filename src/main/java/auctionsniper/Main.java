@@ -3,24 +3,11 @@ package auctionsniper;
 import auctionsniper.ui.MainWindow;
 import auctionsniper.ui.SnipersTableModel;
 import auctionsniper.ui.SwingThreadSniperListener;
-import auctionsniper.util.Announcer;
 import org.jivesoftware.smack.AbstractXMPPConnection;
-import org.jivesoftware.smack.ConnectionConfiguration;
-import org.jivesoftware.smack.SmackException;
-import org.jivesoftware.smack.XMPPException;
-import org.jivesoftware.smack.chat2.Chat;
-import org.jivesoftware.smack.chat2.ChatManager;
-import org.jivesoftware.smack.tcp.XMPPTCPConnection;
-import org.jivesoftware.smack.tcp.XMPPTCPConnectionConfiguration;
-import org.jxmpp.jid.EntityBareJid;
-import org.jxmpp.jid.impl.JidCreate;
-import org.jxmpp.stringprep.XmppStringprepException;
 
 import javax.swing.*;
 import java.awt.event.WindowAdapter;
 import java.awt.event.WindowEvent;
-import java.io.IOException;
-import java.net.InetAddress;
 import java.util.ArrayList;
 import java.util.List;
 
@@ -30,15 +17,12 @@ public class Main {
     private static final int ARG_XMPP_DOMAIN_NAME = 2;
     private static final int ARG_USERNAME = 3;
     private static final int ARG_PASSWORD = 4;
-    public static final String AUCTION_RESOURCE = "Auction";
-    public static final String ITEM_ID_AS_LOGIN = "auction-%s";
-    public static final String AUCTION_ID_FORMAT = ITEM_ID_AS_LOGIN + "@%s/" + AUCTION_RESOURCE;
 
     private final ConnectionConfig config;
     private final SnipersTableModel snipers = new SnipersTableModel();
     private volatile MainWindow ui;
     @SuppressWarnings("unused")
-    private List<Chat> notToBeGCd = new ArrayList<>();
+    private List<Auction> notToBeGCd = new ArrayList<>();
 
     public Main(ConnectionConfig config) throws Exception {
         this.config = config;
@@ -87,7 +71,7 @@ public class Main {
                 // 本通りに、`Chat`毎に管理したいので、以下の様にアイテム追加毎にコネクションと`Chat`を生成する。
                 // - コネクション生成時にリソース名(アイテムID)を付加する(オークションからのメッセージの送信先を分ける)。
                 // - それぞれのコネクションから生成される`ChatManager`に対して`IncomingChatMessageListener`を設定する。
-                AbstractXMPPConnection connection = connectTo(
+                AbstractXMPPConnection connection = XMPPAuction.connection(
                         config.hostName,
                         config.port,
                         config.xmppDomainName,
@@ -96,19 +80,8 @@ public class Main {
                         itemId);
                 disconnectWhenUICloses(connection);
 
-                ChatManager manager = ChatManager.getInstanceFor(connection);
-                Chat chat = manager.chatWith(auctionJid(itemId, connection.getXMPPServiceDomain().toString()));
-                notToBeGCd.add(chat);
-
-                Announcer<AuctionEventListener> auctionEventListeners = Announcer.to(AuctionEventListener.class);
-                // TODO `AuctionSniper` 内の `SniperSnapshot` と、`SnipersTableModel` 内のそれが重複している。
-                manager.addIncomingListener(
-                        new AuctionMessageTranslator(
-                                connection.getUser().toString(), // `AbstractXMPPConnection.connection` は `EntityFullJid` を返す。
-                                auctionEventListeners.announce()));
-
-                Auction auction = new XMPPAuction(chat);
-                auctionEventListeners.addListener(new AuctionSniper(itemId, auction, new SwingThreadSniperListener(snipers)));
+                Auction auction = new XMPPAuction(connection, itemId);
+                auction.addAuctionEventListener(new AuctionSniper(itemId, auction, new SwingThreadSniperListener(snipers)));
                 auction.join();
 
                 snipers.addSniper(SniperSnapshot.joining(itemId));
@@ -116,25 +89,6 @@ public class Main {
                 throw new RuntimeException(e);
             }
         });
-    }
-
-    private static AbstractXMPPConnection connectTo(String hostName, int port, String xmppDomainName, String username, String password, String resource) throws IOException, InterruptedException, SmackException, XMPPException {
-        XMPPTCPConnectionConfiguration config = XMPPTCPConnectionConfiguration.builder()
-                .setSecurityMode(ConnectionConfiguration.SecurityMode.disabled)
-                .setHostAddress(InetAddress.getByName(hostName))
-                .setPort(port)
-                .setXmppDomain(xmppDomainName)
-                .setUsernameAndPassword(username, password)
-                .setResource(resource)
-                .build();
-        AbstractXMPPConnection connection = new XMPPTCPConnection(config);
-        connection.connect();
-        connection.login();
-        return connection;
-    }
-
-    private static EntityBareJid auctionJid(String itemId, String xmppDomainName) throws XmppStringprepException {
-        return JidCreate.entityBareFrom(String.format(AUCTION_ID_FORMAT, itemId, xmppDomainName));
     }
 
     private void disconnectWhenUICloses(AbstractXMPPConnection connection) {

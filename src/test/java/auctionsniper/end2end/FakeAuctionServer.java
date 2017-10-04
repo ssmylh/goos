@@ -30,9 +30,9 @@ public class FakeAuctionServer {
     public static final String AUCTION_RESOURCE = "Auction";
     public static final String AUCTION_PASSWORD = "auction";
 
-    static final String XMPP_DOMAIN_NAME = "localhost";
-    static final String XMPP_HOST_NAME = "localhost";
-    static final int XMPP_PORT = 5222;
+    public static final String XMPP_DOMAIN_NAME = "localhost";
+    public static final String XMPP_HOST_NAME = "localhost";
+    public static final int XMPP_PORT = 5222;
 
     private String itemId;
     private AbstractXMPPConnection connection;
