@@ -5,7 +5,7 @@ import org.junit.Test;
 
 import static auctionsniper.SniperState.*;
 import static auctionsniper.ui.Column.*;
-import static org.hamcrest.CoreMatchers.*;
+import static org.hamcrest.Matchers.*;
 import static org.junit.Assert.*;
 
 public class ColumnTest {
