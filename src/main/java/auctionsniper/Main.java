@@ -3,6 +3,7 @@ package auctionsniper;
 import auctionsniper.ui.MainWindow;
 import auctionsniper.ui.SnipersTableModel;
 import auctionsniper.ui.SwingThreadSniperListener;
+import auctionsniper.util.Announcer;
 import org.jivesoftware.smack.AbstractXMPPConnection;
 import org.jivesoftware.smack.ConnectionConfiguration;
 import org.jivesoftware.smack.SmackException;
@@ -101,11 +102,15 @@ public class Main {
                 Chat chat = manager.chatWith(auctionJid(itemId, connection.getXMPPServiceDomain().toString()));
                 notToBeGCd.add(chat);
 
-                Auction auction = new XMPPAuction(chat);
-
+                Announcer<AuctionEventListener> auctionEventListeners = Announcer.to(AuctionEventListener.class);
                 // TODO `AuctionSniper` 内の `SniperSnapshot` と、`SnipersTableModel` 内のそれが重複している。
-                manager.addIncomingListener(new AuctionMessageTranslator(connection.getUser().toString(), // `AbstractXMPPConnection.connection` は `EntityFullJid` を返す。
-                        new AuctionSniper(itemId, auction, new SwingThreadSniperListener(snipers))));
+                manager.addIncomingListener(
+                        new AuctionMessageTranslator(
+                                connection.getUser().toString(), // `AbstractXMPPConnection.connection` は `EntityFullJid` を返す。
+                                auctionEventListeners.announce()));
+
+                Auction auction = new XMPPAuction(chat);
+                auctionEventListeners.addListener(new AuctionSniper(itemId, auction, new SwingThreadSniperListener(snipers)));
                 auction.join();
 
                 snipers.addSniper(SniperSnapshot.joining(itemId));
