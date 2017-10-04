@@ -33,8 +33,6 @@ public class Main {
     public static final String AUCTION_RESOURCE = "Auction";
     public static final String ITEM_ID_AS_LOGIN = "auction-%s";
     public static final String AUCTION_ID_FORMAT = ITEM_ID_AS_LOGIN + "@%s/" + AUCTION_RESOURCE;
-    public static final String JOIN_COMMAND_FORMAT = "SOLVersion: 1.1; Command: JOIN;";
-    public static final String BID_COMMAND_FORMAT = "SOLVersion: 1.1; Command: BID; Price: %d;";
 
     private final ConnectionConfig config;
     private final SnipersTableModel snipers = new SnipersTableModel();
@@ -148,31 +146,4 @@ public class Main {
         });
     }
 
-    public static class XMPPAuction implements Auction {
-        private Chat chat;
-
-        public XMPPAuction(Chat chat) {
-            this.chat = chat;
-        }
-
-        @Override
-        public void bid(int amount) {
-            sendMessage(String.format(BID_COMMAND_FORMAT, amount));
-        }
-
-        @Override
-        public void join() {
-            sendMessage(JOIN_COMMAND_FORMAT);
-        }
-
-        private void sendMessage(String message) {
-            try {
-                chat.send(message);
-            } catch (SmackException.NotConnectedException e) {
-                e.printStackTrace();
-            } catch (InterruptedException e) {
-                e.printStackTrace();
-            }
-        }
-    }
 }
