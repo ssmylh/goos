@@ -3,8 +3,7 @@ package auctionsniper;
 import auctionsniper.ui.MainWindow;
 import auctionsniper.ui.SnipersTableModel;
 import auctionsniper.ui.SwingThreadSniperListener;
-import auctionsniper.xmpp.XMPPAuction;
-import org.jivesoftware.smack.AbstractXMPPConnection;
+import auctionsniper.xmpp.XMPPAuctionHouse;
 
 import javax.swing.*;
 import java.awt.event.WindowAdapter;
@@ -69,19 +68,19 @@ public class Main {
                 // 本の `Smack` : `Chat`毎にリスナーを設定
                 // 4.2.0 : `ChatManager`に対してリスナーを設定。`Chat`毎に対してリスナーを設定出来ない。
                 // と、APIが異なり、挙動も異なる。
-                // 本通りに、`Chat`毎に管理したいので、以下の様にアイテム追加毎にコネクションと`Chat`を生成する。
+                // 本通りに、`Chat`毎に管理したいので、以下の様にアイテム追加毎にコネクションと`Chat`をラップする`XMPPAuctionHouse`を生成する。
                 // - コネクション生成時にリソース名(アイテムID)を付加する(オークションからのメッセージの送信先を分ける)。
                 // - それぞれのコネクションから生成される`ChatManager`に対して`IncomingChatMessageListener`を設定する。
-                AbstractXMPPConnection connection = XMPPAuction.connection(
+                XMPPAuctionHouse auctionHouse = XMPPAuctionHouse.connect(
                         config.hostName,
                         config.port,
                         config.xmppDomainName,
                         config.userName,
                         config.password,
                         itemId);
-                disconnectWhenUICloses(connection);
+                disconnectWhenUICloses(auctionHouse);
 
-                Auction auction = new XMPPAuction(connection, itemId);
+                Auction auction = auctionHouse.auctionFor(itemId);
                 auction.addAuctionEventListener(new AuctionSniper(itemId, auction, new SwingThreadSniperListener(snipers)));
                 auction.join();
 
@@ -92,11 +91,11 @@ public class Main {
         });
     }
 
-    private void disconnectWhenUICloses(AbstractXMPPConnection connection) {
+    private void disconnectWhenUICloses(XMPPAuctionHouse auctionHouse) {
         ui.addWindowListener(new WindowAdapter() {
             @Override
             public void windowClosed(WindowEvent e) {
-                connection.disconnect();
+                auctionHouse.disconnect();
             }
         });
     }
