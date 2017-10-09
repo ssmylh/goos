@@ -3,6 +3,7 @@ package auctionsniper;
 import auctionsniper.ui.MainWindow;
 import auctionsniper.ui.SnipersTableModel;
 import auctionsniper.ui.SwingThreadSniperListener;
+import auctionsniper.xmpp.XMPPAuction;
 import org.jivesoftware.smack.AbstractXMPPConnection;
 
 import javax.swing.*;

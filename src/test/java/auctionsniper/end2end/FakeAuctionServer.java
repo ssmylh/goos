@@ -1,6 +1,6 @@
 package auctionsniper.end2end;
 
-import auctionsniper.XMPPAuction;
+import auctionsniper.xmpp.XMPPAuction;
 import org.hamcrest.Matcher;
 import org.jivesoftware.smack.AbstractXMPPConnection;
 import org.jivesoftware.smack.ConnectionConfiguration;

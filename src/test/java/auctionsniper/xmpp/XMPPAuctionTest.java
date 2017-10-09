@@ -1,7 +1,10 @@
-package auctionsniper;
+package auctionsniper.xmpp;
 
+import auctionsniper.Auction;
+import auctionsniper.AuctionEventListener;
 import auctionsniper.end2end.ApplicationRunner;
 import auctionsniper.end2end.FakeAuctionServer;
+import auctionsniper.xmpp.XMPPAuction;
 import org.jivesoftware.smack.AbstractXMPPConnection;
 import org.junit.After;
 import org.junit.Before;
