@@ -20,7 +20,6 @@ public class XMPPAuction implements Auction {
         ChatManager manager = ChatManager.getInstanceFor(connection);
         chat = manager.chatWith(jid);
 
-        // TODO `AuctionSniper` 内の `SniperSnapshot` と、`SnipersTableModel` 内のそれが重複している。
         manager.addIncomingListener(
                 new AuctionMessageTranslator(
                         connection.getUser().toString(), // `XMPPConnection.connection` は `EntityFullJid` を返す。

@@ -1,5 +1,6 @@
 package auctionsniper.ui;
 
+import auctionsniper.AuctionSniper;
 import auctionsniper.SniperSnapshot;
 import org.hamcrest.Matcher;
 import org.jmock.Expectations;
@@ -16,10 +17,12 @@ import static org.hamcrest.Matchers.*;
 import static org.junit.Assert.*;
 
 public class SnipersTableModelTest {
+    private static final String ITEM_ID = "item id";
     @Rule
     public final JUnitRuleMockery context = new JUnitRuleMockery();
     private TableModelListener listener = context.mock(TableModelListener.class);
     private final SnipersTableModel model = new SnipersTableModel();
+    private final AuctionSniper sniper = new AuctionSniper(ITEM_ID, null);
 
     @Before
     public void attachModelListener() {
@@ -33,8 +36,7 @@ public class SnipersTableModelTest {
 
     @Test
     public void setsSniperValuesInColumns() {
-        SniperSnapshot joining = SniperSnapshot.joining("item id");
-        SniperSnapshot bidding = joining.bidding(555, 666);
+        SniperSnapshot bidding = sniper.getSnapshot().bidding(555, 666);
 
         context.checking(new Expectations() {
             {
@@ -45,7 +47,7 @@ public class SnipersTableModelTest {
         });
 
 
-        model.addSniper(joining);
+        model.addSniper(sniper);
         model.sniperStateChanged(bidding);
 
         assertColumnEquals(Column.ITEM_IDENTIFIER, "item id");
@@ -63,7 +65,6 @@ public class SnipersTableModelTest {
 
     @Test
     public void notifiesListenersWhenAddingASniper() {
-        SniperSnapshot joining = SniperSnapshot.joining("item123");
         context.checking(new Expectations() {
             {
                 oneOf(listener).tableChanged(with(anInsertionAtRow(0)));
@@ -72,9 +73,9 @@ public class SnipersTableModelTest {
 
         assertThat(model.getRowCount(), is(0));
 
-        model.addSniper(joining);
+        model.addSniper(sniper);
         assertThat(model.getRowCount(), is(1));
-        assertRowMatchesSnapshot(0, joining);
+        assertRowMatchesSnapshot(0, SniperSnapshot.joining(ITEM_ID));
     }
 
     private Matcher<TableModelEvent> aRowChangedEvent() {

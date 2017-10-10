@@ -1,5 +1,7 @@
 package auctionsniper.ui;
 
+import auctionsniper.AuctionSniper;
+import auctionsniper.SniperCollector;
 import auctionsniper.SniperListener;
 import auctionsniper.SniperSnapshot;
 import auctionsniper.SniperState;
@@ -9,8 +11,10 @@ import javax.swing.table.AbstractTableModel;
 import java.util.ArrayList;
 import java.util.List;
 
-public class SnipersTableModel extends AbstractTableModel implements SniperListener{
-    private List<SniperSnapshot> snapshots = new ArrayList<SniperSnapshot>();
+public class SnipersTableModel extends AbstractTableModel implements SniperListener, SniperCollector {
+    private List<SniperSnapshot> snapshots = new ArrayList<>();
+    private List<AuctionSniper> notToBeGCd = new ArrayList<>();
+
     private static String[] STATUS_TEXT = {
             "Joining",
             "Bidding",
@@ -19,7 +23,14 @@ public class SnipersTableModel extends AbstractTableModel implements SniperListe
             "Won"
     };
 
-    public void addSniper(SniperSnapshot snapshot) {
+    @Override
+    public void addSniper(AuctionSniper sniper) {
+        notToBeGCd.add(sniper);
+        addSniperSnapShot(sniper.getSnapshot());
+        sniper.addSniperListener(new SwingThreadSniperListener(this));
+    }
+
+    private void addSniperSnapShot(SniperSnapshot snapshot) {
         snapshots.add(snapshot);
         int row = snapshots.size() - 1;
         fireTableRowsInserted(row, row);
@@ -58,7 +69,7 @@ public class SnipersTableModel extends AbstractTableModel implements SniperListe
 
     private int rowMatching(SniperSnapshot snapshot) {
         for (int i = 0; i < snapshots.size(); i++) {
-            if(snapshot.isForSameItemAs(snapshots.get(i))) {
+            if (snapshot.isForSameItemAs(snapshots.get(i))) {
                 return i;
             }
         }

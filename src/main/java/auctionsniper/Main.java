@@ -2,14 +2,11 @@ package auctionsniper;
 
 import auctionsniper.ui.MainWindow;
 import auctionsniper.ui.SnipersTableModel;
-import auctionsniper.ui.SwingThreadSniperListener;
 import auctionsniper.xmpp.XMPPAuctionHouse;
 
 import javax.swing.*;
 import java.awt.event.WindowAdapter;
 import java.awt.event.WindowEvent;
-import java.util.ArrayList;
-import java.util.List;
 
 public class Main {
     private static final int ARG_HOST_NAME = 0;
@@ -21,8 +18,6 @@ public class Main {
     private final ConnectionConfig config;
     private final SnipersTableModel snipers = new SnipersTableModel();
     private volatile MainWindow ui;
-    @SuppressWarnings("unused")
-    private List<Auction> notToBeGCd = new ArrayList<>();
 
     public Main(ConnectionConfig config) throws Exception {
         this.config = config;
@@ -79,12 +74,7 @@ public class Main {
                         config.password,
                         itemId);
                 disconnectWhenUICloses(auctionHouse);
-
-                Auction auction = auctionHouse.auctionFor(itemId);
-                auction.addAuctionEventListener(new AuctionSniper(itemId, auction, new SwingThreadSniperListener(snipers)));
-                auction.join();
-
-                snipers.addSniper(SniperSnapshot.joining(itemId));
+                new SniperLauncher(auctionHouse, snipers).joinAuction(itemId);
             } catch (Exception e) {
                 throw new RuntimeException(e);
             }
@@ -99,5 +89,4 @@ public class Main {
             }
         });
     }
-
 }
