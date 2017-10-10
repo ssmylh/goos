@@ -1,7 +1,6 @@
 package auctionsniper;
 
 import auctionsniper.ui.MainWindow;
-import auctionsniper.ui.SnipersTableModel;
 import auctionsniper.xmpp.XMPPAuctionHouse;
 
 import javax.swing.*;
@@ -16,12 +15,12 @@ public class Main {
     private static final int ARG_PASSWORD = 4;
 
     private final ConnectionConfig config;
-    private final SnipersTableModel snipers = new SnipersTableModel();
+    private final SniperPortfolio portfolio = new SniperPortfolio();
     private volatile MainWindow ui;
 
     public Main(ConnectionConfig config) throws Exception {
         this.config = config;
-        startUserInterface(snipers);
+        startUserInterface();
         addUserRequestListenerFor();
     }
 
@@ -51,9 +50,9 @@ public class Main {
         new Main(config);
     }
 
-    private void startUserInterface(SnipersTableModel snipers) throws Exception {
+    private void startUserInterface() throws Exception {
         SwingUtilities.invokeAndWait(() -> {
-            this.ui = new MainWindow(snipers);
+            this.ui = new MainWindow(portfolio);
         });
     }
 
@@ -74,7 +73,7 @@ public class Main {
                         config.password,
                         itemId);
                 disconnectWhenUICloses(auctionHouse);
-                new SniperLauncher(auctionHouse, snipers).joinAuction(itemId);
+                new SniperLauncher(auctionHouse, portfolio).joinAuction(itemId);
             } catch (Exception e) {
                 throw new RuntimeException(e);
             }

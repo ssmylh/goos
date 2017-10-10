@@ -1,5 +1,6 @@
 package auctionsniper.ui;
 
+import auctionsniper.SniperPortfolio;
 import auctionsniper.WindowLickerWorkaround;
 import auctionsniper.end2end.AuctionSniperDriver;
 import com.objogate.wl.swing.probe.ValueMatcherProbe;
@@ -12,8 +13,8 @@ import static org.hamcrest.Matchers.*;
  * integration test
  */
 public class MainWindowTest {
-    final SnipersTableModel snipers = new SnipersTableModel();
-    final MainWindow mainWindow = new MainWindow(snipers);
+    final SniperPortfolio portfolio = new SniperPortfolio();
+    final MainWindow mainWindow = new MainWindow(portfolio);
     final AuctionSniperDriver driver = new AuctionSniperDriver(100);
 
     @BeforeClass

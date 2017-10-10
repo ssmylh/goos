@@ -47,7 +47,7 @@ public class SnipersTableModelTest {
         });
 
 
-        model.addSniper(sniper);
+        model.sniperAdded(sniper);
         model.sniperStateChanged(bidding);
 
         assertColumnEquals(Column.ITEM_IDENTIFIER, "item id");
@@ -73,7 +73,7 @@ public class SnipersTableModelTest {
 
         assertThat(model.getRowCount(), is(0));
 
-        model.addSniper(sniper);
+        model.sniperAdded(sniper);
         assertThat(model.getRowCount(), is(1));
         assertRowMatchesSnapshot(0, SniperSnapshot.joining(ITEM_ID));
     }
