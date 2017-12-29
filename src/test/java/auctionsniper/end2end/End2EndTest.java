@@ -91,9 +91,6 @@ public class End2EndTest {
         auction.startSellingItem();
         auction2.startSellingItem();
 
-        // テーブルに行が追加されていないので、`ApplicationRunner.startBiddingIn`内のチェック(`AuctionSniperDriver.showsSniperStatus`)で失敗する。
-        // 結果、`SingleIncomingListener.receiveAMessage`は呼ばれない。
-        // チェックをコメントアウトすると本通りのエラーメッセージが表示される。
         runner.startBiddingIn(auction, auction2);
         auction.hasReceivedJoinRequestFrom(SNIPER_XMPP_ID);
         auction2.hasReceivedJoinRequestFrom(SNIPER_XMPP_ID2);
@@ -116,4 +113,5 @@ public class End2EndTest {
         runner.hasShownSniperHasWonAuction(auction, 1098);
         runner.hasShownSniperHasWonAuction(auction2, 521);
     }
+
 }
