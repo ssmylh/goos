@@ -114,4 +114,23 @@ public class End2EndTest {
         runner.hasShownSniperHasWonAuction(auction2, 521);
     }
 
+    @Test
+    public void sniperLosesAnAuctionWhenThePriceIsTooHigh() throws Exception {
+        auction.startSellingItem();
+
+        runner.startBiddingWithStopPrice(auction, 1100);
+        auction.hasReceivedJoinRequestFrom(SNIPER_XMPP_ID);
+        auction.reportPrice(1000, 98, "other bidder");
+        runner.hasShownSniperIsBidding(auction, 1000, 1098);
+
+        auction.hasReceivedBid(1098, SNIPER_XMPP_ID);
+
+        auction.reportPrice(1197, 10, "third party");
+        runner.hasShownSniperIsLosing(auction, 1197, 1098);
+
+        auction.reportPrice(1207, 10, "fourth party");
+        runner.hasShownSniperIsLosing(auction, 1207, 1098);
+        auction.announceClosed();
+        runner.hasShownSniperHasLostAuction(auction, 1207, 1098);
+    }
 }

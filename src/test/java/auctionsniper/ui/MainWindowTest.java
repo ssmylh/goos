@@ -28,7 +28,7 @@ public class MainWindowTest {
         ValueMatcherProbe<String> buttonProbe = new ValueMatcherProbe<>(equalTo(itemId), "join request");
         mainWindow.addUserRequestListener(_itemId -> buttonProbe.setReceivedValue(_itemId));
 
-        driver.startBiddingFor(itemId);
+        driver.startBiddingFor(itemId, Integer.MAX_VALUE);
         driver.check(buttonProbe);
     }
 }
