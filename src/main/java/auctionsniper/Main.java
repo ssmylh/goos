@@ -57,7 +57,7 @@ public class Main {
     }
 
     private void addUserRequestListenerFor() {
-        ui.addUserRequestListener(itemId -> {
+        ui.addUserRequestListener(item -> {
             try {
                 // 本の `Smack` : `Chat`毎にリスナーを設定
                 // 4.2.0 : `ChatManager`に対してリスナーを設定。`Chat`毎に対してリスナーを設定出来ない。
@@ -71,9 +71,9 @@ public class Main {
                         config.xmppDomainName,
                         config.userName,
                         config.password,
-                        itemId);
+                        item.identifier);
                 disconnectWhenUICloses(auctionHouse);
-                new SniperLauncher(auctionHouse, portfolio).joinAuction(itemId);
+                new SniperLauncher(auctionHouse, portfolio).joinAuction(item);
             } catch (Exception e) {
                 throw new RuntimeException(e);
             }

@@ -1,5 +1,6 @@
 package auctionsniper.ui;
 
+import auctionsniper.Item;
 import auctionsniper.SniperPortfolio;
 import auctionsniper.WindowLickerWorkaround;
 import auctionsniper.end2end.AuctionSniperDriver;
@@ -25,10 +26,11 @@ public class MainWindowTest {
     @Test
     public void makeUserRequestWhenJoinButtonClicked() {
         String itemId = "an item-id";
-        ValueMatcherProbe<String> buttonProbe = new ValueMatcherProbe<>(equalTo(itemId), "join request");
-        mainWindow.addUserRequestListener(_itemId -> buttonProbe.setReceivedValue(_itemId));
+        int stopPrice = 789;
+        ValueMatcherProbe<Item> itemProbe = new ValueMatcherProbe<>(equalTo(new Item(itemId, stopPrice)), "join request");
+        mainWindow.addUserRequestListener(item -> itemProbe.setReceivedValue(item));
 
-        driver.startBiddingFor(itemId, Integer.MAX_VALUE);
-        driver.check(buttonProbe);
+        driver.startBiddingFor(itemId, stopPrice);
+        driver.check(itemProbe);
     }
 }

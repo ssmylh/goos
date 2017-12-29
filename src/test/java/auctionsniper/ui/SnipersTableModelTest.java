@@ -1,6 +1,7 @@
 package auctionsniper.ui;
 
 import auctionsniper.AuctionSniper;
+import auctionsniper.Item;
 import auctionsniper.SniperSnapshot;
 import org.hamcrest.Matcher;
 import org.jmock.Expectations;
@@ -22,7 +23,7 @@ public class SnipersTableModelTest {
     public final JUnitRuleMockery context = new JUnitRuleMockery();
     private TableModelListener listener = context.mock(TableModelListener.class);
     private final SnipersTableModel model = new SnipersTableModel();
-    private final AuctionSniper sniper = new AuctionSniper(ITEM_ID, null);
+    private final AuctionSniper sniper = new AuctionSniper(new Item(ITEM_ID, 1234), null);
 
     @Before
     public void attachModelListener() {
