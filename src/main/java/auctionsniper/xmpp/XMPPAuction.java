@@ -14,16 +14,18 @@ public class XMPPAuction implements Auction {
     public static final String BID_COMMAND_FORMAT = "SOLVersion: 1.1; Command: BID; Price: %d;";
 
     private Announcer<AuctionEventListener> auctionEventListeners = Announcer.to(AuctionEventListener.class);
+    private ChatManager manager;
     private Chat chat;
 
     public XMPPAuction(XMPPConnection connection, EntityBareJid jid) {
-        ChatManager manager = ChatManager.getInstanceFor(connection);
+        manager = ChatManager.getInstanceFor(connection);
         chat = manager.chatWith(jid);
 
-        manager.addIncomingListener(
-                new AuctionMessageTranslator(
-                        connection.getUser().toString(), // `XMPPConnection.connection` は `EntityFullJid` を返す。
-                        auctionEventListeners.announce()));
+        AuctionMessageTranslator translator = new AuctionMessageTranslator(
+                connection.getUser().toString(), // `XMPPConnection.connection` は `EntityFullJid` を返す。
+                auctionEventListeners.announce());
+        manager.addIncomingListener(translator);
+        addAuctionEventListener(chatDisconnectorFor(translator));
     }
 
     @Override
@@ -49,6 +51,19 @@ public class XMPPAuction implements Auction {
         } catch (InterruptedException e) {
             e.printStackTrace();
         }
+    }
+
+    private AuctionEventListener chatDisconnectorFor(AuctionMessageTranslator translator) {
+        return new AuctionEventListener() {
+            @Override
+            public void auctionClosed() { }
+            @Override
+            public void currentPrice(int price, int increment, PriceSource priceSource) { }
+            @Override
+            public void auctionFailed() {
+                manager.removeListener(translator);
+            }
+        };
     }
 
 }

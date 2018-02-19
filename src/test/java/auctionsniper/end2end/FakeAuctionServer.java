@@ -112,6 +112,16 @@ public class FakeAuctionServer {
         });
     }
 
+    public void sendInvalidMessageContaining(String brokenMessage) {
+        incomingListener.getChatPartner().ifPresent((partner -> {
+            try {
+                partner.chat.send(brokenMessage);
+            } catch (SmackException.NotConnectedException | InterruptedException e) {
+                throw new RuntimeException(e);
+            }
+        }));
+    }
+
     class SingleIncomingListener implements IncomingChatMessageListener {
 
         private ArrayBlockingQueue<Message> messages = new ArrayBlockingQueue<>(1);

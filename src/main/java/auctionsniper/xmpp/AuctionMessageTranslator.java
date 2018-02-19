@@ -23,36 +23,48 @@ public class AuctionMessageTranslator implements IncomingChatMessageListener {
 
     @Override
     public void newIncomingMessage(EntityBareJid entityBareJid, Message message, Chat chat) {
-        AuctionEvent event = AuctionEvent.from(message.getBody());
+        try {
+            AuctionEvent event = AuctionEvent.from(message.getBody());
 
-        String type = event.type();
-        if ("CLOSE".equals(type)) {
-            listener.auctionClosed();
-        } else if ("PRICE".equals(type)) {
-            listener.currentPrice(event.currentPrice(), event.increment(), event.isFrom(sniperXMPPId));
+            String type = event.type();
+            if ("CLOSE".equals(type)) {
+                listener.auctionClosed();
+            } else if ("PRICE".equals(type)) {
+                listener.currentPrice(event.currentPrice(), event.increment(), event.isFrom(sniperXMPPId));
+            }
+        } catch (Exception parseException) {
+            listener.auctionFailed();
         }
     }
 
     private static class AuctionEvent {
         private Map<String, String> fields = new HashMap<>();
 
-        public String type() {
-            return fields.get("Event");
+        public String type() throws MissingValueException {
+            return get("Event");
         }
 
-        public int currentPrice() {
-            return Integer.parseInt(fields.get("CurrentPrice"));
+        public int currentPrice() throws MissingValueException {
+            return Integer.parseInt(get("CurrentPrice"));
         }
 
-        public int increment() {
-            return Integer.parseInt(fields.get("Increment"));
+        public int increment() throws MissingValueException {
+            return Integer.parseInt(get("Increment"));
         }
 
-        public String bidder() {
-            return fields.get("Bidder");
+        public String bidder() throws MissingValueException {
+            return get("Bidder");
         }
 
-        public PriceSource isFrom(String sniperXMPPId) {
+        private String get(String fieldName) throws MissingValueException {
+            String value = fields.get(fieldName);
+            if (value == null) {
+                throw new MissingValueException(fieldName);
+            }
+            return value;
+        }
+
+        public PriceSource isFrom(String sniperXMPPId) throws MissingValueException {
             return sniperXMPPId.equals(bidder()) ? FromSniper : FromOtherBidder;
         }
 
@@ -71,6 +83,12 @@ public class AuctionMessageTranslator implements IncomingChatMessageListener {
 
         private static String[] fieldsIn(String messageBody) {
             return messageBody.split(";");
+        }
+
+        private static class MissingValueException extends Exception {
+            public MissingValueException(String fieldName) {
+                super("Missing value for " + fieldName);
+            }
         }
     }
 }
