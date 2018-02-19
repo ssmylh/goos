@@ -1,13 +1,8 @@
 package auctionsniper;
 
-import java.util.ArrayList;
-import java.util.List;
-
 public class SniperLauncher implements UserRequestListener {
     private final AuctionHouse auctionHouse;
     private final SniperCollector collector;
-    @SuppressWarnings("unused")
-    private List<Auction> notToBeGCd = new ArrayList<>();
     public SniperLauncher(AuctionHouse auctionHouse, SniperCollector collector) {
         this.auctionHouse = auctionHouse;
         this.collector = collector;
