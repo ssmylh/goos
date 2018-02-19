@@ -19,7 +19,8 @@ public class AuctionMessageTranslatorTest {
     public static final Chat UNUSED_CHAT = null;
     public static final EntityBareJid UNUSED_JID = null;
     private final AuctionEventListener listener = context.mock(AuctionEventListener.class);
-    private final AuctionMessageTranslator translator = new AuctionMessageTranslator(SNIPER_XMPP_ID, listener);
+    private final XMPPFailureReporter failureReporter = context.mock(XMPPFailureReporter.class);
+    private final AuctionMessageTranslator translator = new AuctionMessageTranslator(SNIPER_XMPP_ID, listener, failureReporter);
 
     @Test
     public void notifiesAuctionClosedWhenCloseMessageReceived() {
@@ -73,30 +74,34 @@ public class AuctionMessageTranslatorTest {
 
     @Test
     public void notifiesAuctionFailedWhenBadMessageReceived() {
-        context.checking(new Expectations() {
-            {
-                oneOf(listener).auctionFailed();
-            }
-        });
+        String badMessage = "a bad message";
+        expectFailureWithMessage(badMessage);
 
-        Message message = new Message();
-        message.setBody("a bad message");
-
-        translator.newIncomingMessage(UNUSED_JID, message, UNUSED_CHAT);
+        translator.newIncomingMessage(UNUSED_JID, message(badMessage), UNUSED_CHAT);
     }
 
     @Test
     public void notifiesAuctionFailedWhenEventTypeMissing() {
+        String badMessage = "SOLVersion: 1.1; CurrentPrice: 234; Increment: 5; Bidder: " + SNIPER_XMPP_ID + ";";
+        expectFailureWithMessage(badMessage);
+
+        translator.newIncomingMessage(UNUSED_JID, message(badMessage), UNUSED_CHAT);
+    }
+
+    private Message message(String body) {
+        Message message = new Message();
+        message.setBody(body);
+        return message;
+    }
+
+    private void expectFailureWithMessage(final String badMessage) {
         context.checking(new Expectations() {
             {
                 oneOf(listener).auctionFailed();
+                oneOf(failureReporter).cannotTranslateMessage(
+                        with(SNIPER_XMPP_ID), with(badMessage),
+                        with(any(Exception.class)));
             }
         });
-
-        Message message = new Message();
-        message.setBody("SOLVersion: 1.1; CurrentPrice: 234; Increment: 5; Bidder: " + SNIPER_XMPP_ID + ";");
-
-        translator.newIncomingMessage(UNUSED_JID, message, UNUSED_CHAT);
     }
-
 }

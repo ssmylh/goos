@@ -15,10 +15,12 @@ import static auctionsniper.AuctionEventListener.PriceSource.*;
 public class AuctionMessageTranslator implements IncomingChatMessageListener {
     private String sniperXMPPId;
     private AuctionEventListener listener;
+    private XMPPFailureReporter failureReporter;
 
-    public AuctionMessageTranslator(String sniperXMPPId, AuctionEventListener listener) {
+    public AuctionMessageTranslator(String sniperXMPPId, AuctionEventListener listener, XMPPFailureReporter failureReporter) {
         this.sniperXMPPId = sniperXMPPId;
         this.listener = listener;
+        this.failureReporter = failureReporter;
     }
 
     @Override
@@ -33,6 +35,7 @@ public class AuctionMessageTranslator implements IncomingChatMessageListener {
                 listener.currentPrice(event.currentPrice(), event.increment(), event.isFrom(sniperXMPPId));
             }
         } catch (Exception parseException) {
+            failureReporter.cannotTranslateMessage(sniperXMPPId, message.getBody(), parseException);
             listener.auctionFailed();
         }
     }

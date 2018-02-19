@@ -17,13 +17,14 @@ public class XMPPAuction implements Auction {
     private ChatManager manager;
     private Chat chat;
 
-    public XMPPAuction(XMPPConnection connection, EntityBareJid jid) {
+    public XMPPAuction(XMPPConnection connection, EntityBareJid jid, XMPPFailureReporter failureReporter) {
         manager = ChatManager.getInstanceFor(connection);
         chat = manager.chatWith(jid);
 
         AuctionMessageTranslator translator = new AuctionMessageTranslator(
                 connection.getUser().toString(), // `XMPPConnection.connection` は `EntityFullJid` を返す。
-                auctionEventListeners.announce());
+                auctionEventListeners.announce(),
+                failureReporter);
         manager.addIncomingListener(translator);
         addAuctionEventListener(chatDisconnectorFor(translator));
     }

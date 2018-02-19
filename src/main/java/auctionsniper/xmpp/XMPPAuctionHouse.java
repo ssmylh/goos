@@ -2,6 +2,7 @@ package auctionsniper.xmpp;
 
 import auctionsniper.Auction;
 import auctionsniper.AuctionHouse;
+import org.apache.commons.io.FilenameUtils;
 import org.jivesoftware.smack.AbstractXMPPConnection;
 import org.jivesoftware.smack.ConnectionConfiguration;
 import org.jivesoftware.smack.SmackException;
@@ -14,6 +15,9 @@ import org.jxmpp.stringprep.XmppStringprepException;
 
 import java.io.IOException;
 import java.net.InetAddress;
+import java.util.logging.FileHandler;
+import java.util.logging.Logger;
+import java.util.logging.SimpleFormatter;
 
 public class XMPPAuctionHouse implements AuctionHouse {
     public static final String AUCTION_RESOURCE = "Auction";
@@ -21,11 +25,17 @@ public class XMPPAuctionHouse implements AuctionHouse {
     public static final String AUCTION_ID_FORMAT = ITEM_ID_AS_LOGIN + "@%s/" + AUCTION_RESOURCE;
     private final AbstractXMPPConnection connection;
 
-    public XMPPAuctionHouse(AbstractXMPPConnection connection) {
+    private static final String LOGGER_NAME = "auction-sniper";
+    public static final String LOG_FILE_NAME = "auction-sniper.log";
+    private final XMPPFailureReporter failureReporter;
+
+
+    public XMPPAuctionHouse(AbstractXMPPConnection connection) throws XMPPAuctionException {
         this.connection = connection;
+        this.failureReporter = new LoggingXMPPFailureReporter(makeLogger());
     }
 
-    public static XMPPAuctionHouse connect(String hostName, int port, String xmppDomainName, String username, String password, String resource) throws InterruptedException, XMPPException, SmackException, IOException {
+    public static XMPPAuctionHouse connect(String hostName, int port, String xmppDomainName, String username, String password, String resource) throws InterruptedException, XMPPException, SmackException, IOException, XMPPAuctionException {
         AbstractXMPPConnection connection = connection(hostName, port, xmppDomainName, username, password, resource);
         return new XMPPAuctionHouse(connection);
     }
@@ -55,10 +65,28 @@ public class XMPPAuctionHouse implements AuctionHouse {
 
     @Override
     public Auction auctionFor(String itemId) {
-        return new XMPPAuction(connection, auctionJid(itemId));
+        return new XMPPAuction(connection, auctionJid(itemId), failureReporter);
     }
 
     public void disconnect() {
         connection.disconnect();
+    }
+
+    private Logger makeLogger() throws XMPPAuctionException {
+        Logger logger = Logger.getLogger(LOGGER_NAME);
+        logger.setUseParentHandlers(false);
+        logger.addHandler(simpleFileHandler());
+        return logger;
+    }
+
+    private FileHandler simpleFileHandler() throws XMPPAuctionException {
+        try {
+            FileHandler handler = new FileHandler(LOG_FILE_NAME);
+            handler.setFormatter(new SimpleFormatter());
+            return handler;
+        } catch (Exception e) {
+            throw new XMPPAuctionException("Could not create logger FileHandler "
+                    + FilenameUtils.getFullPath(LOG_FILE_NAME), e);
+        }
     }
 }
